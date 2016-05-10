@@ -11,7 +11,10 @@ It will consist of various different formulations of quantum mechanics and appro
 - Real-time quantum wavepacket dynamics 
 - Imaginary-time quantum wavepacket propagation 
 
-## Quantum Monte Carlo 
-- Imaginary-time propagation of arbitrary wavefunction 
+## Quantum Monte Carlo (QMC) 
+Imaginary-time propagation of arbitrary wavefunction 
+- Variational Monte Carlo 
+- Diffusion Monte Carlo  
+
 
 ## Path Integral 
