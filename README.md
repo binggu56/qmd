@@ -7,7 +7,7 @@ It will consist of various different formulations of quantum mechanics and appro
 ## Wave mechanics 
  - Exact numerical method - split-operator method and Fast Fourier Transform 
  
-## Bohmian Mechanics 
+## Quantum Trajecotry Method (QTM)/Bohmian Mechanics 
 - Real-time quantum wavepacket dynamics 
 - Imaginary-time quantum wavepacket propagation 
 
