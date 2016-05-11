@@ -17,4 +17,8 @@ Imaginary-time propagation of arbitrary wavefunction
 - Diffusion Monte Carlo  
 
 
-## Path Integral 
+## Path Integral
+
+## Quantum dynamics with Gaussian wavepackets (GWP) 
+
+ - Quantum trajectory guided GWPs  
