@@ -1,0 +1,4 @@
+set yr [0:2]
+set xr [0:10]
+plot 'aver.dat' u 1:2 w l , '../0912/aver.dat' u 1:2 w l
+pause -1

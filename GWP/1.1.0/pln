@@ -1,0 +1,2 @@
+set yr [0:2]
+plot 'norm' u 1:2 w l

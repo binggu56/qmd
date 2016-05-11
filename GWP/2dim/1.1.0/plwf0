@@ -1,0 +1,11 @@
+#
+
+#set term aqua
+set pm3d map 
+set ticslevel 0.8
+set isosample 100,100
+set xrange [*:*]
+set yrange [*:*]
+set palette color
+splot "wf0.dat" not 
+pause -1

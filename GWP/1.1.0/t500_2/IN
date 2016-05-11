@@ -1,0 +1,8 @@
+20          # number of trajectories
+5000,1.d-1,40 # kmax,dt,kout
+918d0         # mass
+80d0,9.16d0    # gaussian width for basis and initial wavefunction
+1.4d0        # center for the wavepacket
+0d0         # initial momentum
+5           # idum1
+

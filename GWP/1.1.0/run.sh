@@ -1,0 +1,9 @@
+if [ -e $1 ]
+  then
+	rm -r $1
+fi
+mkdir $1
+cp qm IN $1
+cd $1
+./qm | tee log
+

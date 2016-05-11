@@ -1,0 +1,10 @@
+set terminal postscript eps enhanced color
+set output 'wf.eps'
+set xr [0.5:2.5]
+set xlabel "x [a.u.]"
+set ylabel "{/Symbol y}(x,t)"
+plot 't100/wf.dat' u 1:2 w l lw 2 ti 't=100', \
+     't300/wf.dat' u 1:2 w l lw 2 ti 't=300', \
+     't500/wf.dat' u 1:2 w l lw 2 ti 't=500', \
+     't600/wf.dat' u 1:2 w l lw 2 ti 't=600', \
+     'wf0.dat' u 1:2 pt 3 ti "{/Symbol y}_0"

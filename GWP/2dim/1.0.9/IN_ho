@@ -1,0 +1,9 @@
+16          # number of trajectories/gaussians
+10000,1.d-3,1 # kmax,dt,kout
+-6d0,6d0        # resample range 
+1d0         # mass
+1d0        # gaussian width initial wavefunction
+-0.5d0        # center for the wavepacket
+0d0         # initial momentum
+5           # idum1
+31         # number of Gauss-Hermite quadrature rule points 

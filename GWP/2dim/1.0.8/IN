@@ -1,0 +1,8 @@
+13,13         # number of trajectories/gaussians
+2000,2.d-3,1 # kmax,dt,kout
+1d0,1d0         # mass
+1d0,1d0,6d0,6d0,8d0  # gaussian width for initial wavefunction & basis & convolution  
+-0.63d0,0.63d0       # center for the wavepacket
+0d0,0d0           # initial momentum
+5           # idum1
+31         # number of Gauss-Hermite quadrature rule points 

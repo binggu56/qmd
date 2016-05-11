@@ -1,0 +1,21 @@
+     set multiplot
+     set size 0.48,0.48
+     set origin 0.0,0.0
+     set ylabel 'Norm'
+     set xlabel 'Time'
+     plot 'norm' u 1:2 w l not
+     set size 0.48,0.48
+     set origin 0.5,0.5
+     set ylabel 'c(i)'
+#     set yr [-0.1:0.5]
+     load 'plc'
+
+     set size 0.48,0.48
+     set origin 0,0.5
+     plot 'wf0.dat' u 1:2 w l ti 'psi0', 'wf.dat' u 1:2 w l ti 'psit'
+     set size 0.48,0.48
+     set origin 0.5,0
+     set ylabel 'x(i)'
+     set xlabel 'Time'
+     load 'plx'
+     unset multiplot

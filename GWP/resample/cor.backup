@@ -1,0 +1,58 @@
+
+! --- correlation function 
+
+      double complex function corr(nb,c,c0,q0,p0,s0,q,p,s)
+
+      use cdat, only : im,al,pi
+
+      implicit real*8 (a-h,o-z)
+
+      real*8, intent(in) :: q(nb),p(nb),s(nb)
+      complex*16, intent(in) :: c(nb)
+
+      complex*16 :: mat(nb,nb),z,z0,c0(nb)
+!      common/wave/q0,p0,a0,sigma
+
+!      a = al
+!      alfa = 2d0*a0
+!      as=a+alfa
+!      av=a*alfa/as
+!      an=dsqrt(2d0*dsqrt(av/as))
+!      an0=dsqrt(dsqrt(a/pi))
+!      an2=dsqrt(dsqrt(alfa/pi))
+!!---- compute c0_k = <psi0|g_k>
+!      do j=1,nb
+!        dq=q(j)-q0
+!        dp=p(j)-p0
+!        d2=-0.5d0*av*dq*dq
+!        d0=-0.5d0/as*dp*dp
+!        d1=(alfa*p(j)+a*p0)/as*dq
+!        c0(j)=exp(d2+d0+im*d1)*an
+!      enddo
+
+      anrm = dsqrt(dsqrt(al/pi)) 
+      do j=1,nb 
+        do k=1,j  
+          dq = q0(j)-q(k) 
+          z = dq/2d0-im/2d0/al*(p0(j)-p(k))  
+          z0 = exp(-al*z*conjg(z)+im/2d0*(p0(j)+p(k))*dq) 
+          mat(j,k) = z0*exp(im*(s(k)-s0(j)))  
+        enddo 
+      enddo 
+ 
+      do j=2,nb  
+        do k=1,j-1  
+          mat(k,j) = conjg(mat(j,k)) 
+        enddo  
+      enddo  
+
+      corr = (0d0,0d0)
+      do i=1,nb
+        do j=1,nb 
+          corr = corr+conjg(c0(i))*c(j)*mat(i,j) 
+        enddo
+      enddo
+
+      end function
+
+

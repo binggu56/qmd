@@ -1,0 +1,31 @@
+
+1D QTM code with Gassian Basis 
+
+analytic expression for matrix elements
+
+system: Morse
+
+number of basis:  20
+
+version: 1.4
+
+
+  0.99999853519483684        1.5999976563117391     
+  0.45542860942522667        2.7445713905747735       0.12048119900787088     
+Initial Conditions
+
+al    =  40.000000
+a0    =   9.160000
+Ntraj =     20
+Kmax  =   4000
+dt    =   0.010000
+kout  =     40
+Mass  = 916.570000
+p0    =   0.000000
+q0    =   1.600000
+
+
+Computing inital coefficients
+
+Normalization =  1.000000
+ Final prob =   0.88949771641042041     
