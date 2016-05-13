@@ -3,56 +3,39 @@
 # Test anharmonic system 
 
 import numpy as np
-from math import *  
-import numba 
+import math 
 
-Ntraj = 2000 
+Ntraj = 4000 
 print('Number of trajectories = {} \n'.format(Ntraj))
 
 dt = 0.004
 am = 1.0 
-
-# initial values has to be stored to compute autocorrelation function 
-
 x0 = -1.0 
-p0 = 0.0 
-alpha0 = 1.0+0j
-alpha = alpha0 
- 
+alpha = 1.0+0j 
 a = alpha.real 
 b = alpha.imag
 
-g = 0.0 # anharmonic constant in potential 
+g = 0.4 # anharmonic constant in potential 
 
 Nt = input('Time interval = {} \n How many time steps? '.format(dt))
+# x = np.random.randn(Ntraj)/np.sqrt(2.0*alpha.real) + x0 
+# use uniform sampling between [xmin, xmax]
+xmin = -8.0 
+xmax = 8. 
+x = np.linspace(xmin,xmax,Ntraj) 
+dx = x[1]-x[0] 
+
 p = np.zeros(Ntraj)
+w = np.zeros(Ntraj)
+w = np.sqrt(a/np.pi) * np.exp(-a*(x-x0)**2) * dx 
 
-sampling = 'uniform' 
-if sampling == 'normal':
-
-    x = np.random.randn(Ntraj)/np.sqrt(2.0*alpha.real) + x0 
-    w = np.array([1.0/float(Ntraj)]*Ntraj)
-
-elif sampling == 'uniform':
-    # use uniform sampling between [xmin, xmax]
-    xmin = -8.0 
-    xmax = -xmin  
-    x = np.linspace(xmin,xmax,Ntraj) 
-    dx = x[1]-x[0] 
-    w = np.sqrt(a/np.pi) * np.exp(-a*(x-x0)**2) * dx 
-else: 
-    print('There is no {} sampling'.format(sampling))
-    
-@numba.autojit
 def derivs(x):
-    
     # v = V0 + V1*(x-xAve) + V2 * (x-xAve)**2/2.
     dv =  x + g * x**3 
     ddv = 1.0 + 3.0 * g * x**2 
 
     return dv,ddv
-    
-@numba.autojit
+
 def Hessian(x):
     V0 =  x**2/2.0 + g*x**4/4. 
     V1 =  x + g * x**3
@@ -60,7 +43,6 @@ def Hessian(x):
 
     return V0,V1,V2
 
-@numba.autojit 
 def LQF(x,w,xAve,var):
     
     a = 1. / 2. / var 
@@ -90,6 +72,8 @@ def qpot(x,w,xAve,xVar):
     # c0 = b0/s00 
     c0 = 1.0 
     c1 = b1/s11
+    
+    print 'coeff',c0,c1
 
     P = c0*(-alpha*(x-xAve)) + c1*(-alpha + alpha**2*(x-xAve)**2)
     dP = - alpha*c0 + c1 * alpha**2 * 2.0*(x-xAve) 
@@ -110,16 +94,13 @@ def qpot(x,w,xAve,xVar):
 
 def expand(alpha,V1,V2,x,xAve,pAve,w,c): 
 
-    """
-    Compute potential matrix elements using to propagate coefficients c      
-    
     z = x - xAve 
-    V = < m | DeltaV | n >     
-    Hermite polynomails 
-    H0 = 1. 
-    H1 = z * sqrt(2.) 
-    H2 = (4. * z**2 - 2.) / 4. / sqrt(2.) 
-    """
+    # V = < m | DeltaV | n > 
+    
+    # hermite polynomails 
+    #H0 = 1. 
+    #H1 = z * np.sqrt(2.) 
+    #H2 = (4. * z**2 - 2.) / 4. / np.sqrt(2.) 
     a = alpha.real 
 
     V = Vmat(a,x,xAve,w)
@@ -150,52 +131,40 @@ def expand(alpha,V1,V2,x,xAve,pAve,w,c):
     #V[1,1] = np.dot(DeltaV * H1 * H1, w) 
     #V[2,2] = np.dot(DeltaV * H2 * H2, w) 
 
+    #print 'iH + D', 1j*(K+V) + D 
+
     dc = (-1j* (-matV0 - V1 * M1 - V2/2.0 * M2 + V + matK )).dot(c)
+
+    print('\nDV matrix\n')
+    print(V-V1*M1-V2/2.0*M2)
 
     return dc 
 
-
 def gwp_vp(a,x,xAve,w,c):
-    """
-    Variational principle used to determine effective potential used to propagate the GWP     
-    V = V0 + V1*(x-xAve) + V2*(x-xAve)**2/2
-    V1 = <V'>, V2 = <V''>
-    """
 
-    indicator = 'average_phi0' 
-    
     z = np.sqrt(a)*(x-xAve)
 
     dv,ddv = derivs(x)
-        
-    if indicator == 'average_psi':
+
+    mat_dv = np.zeros((Nb,Nb))
+    mat_ddv = np.zeros((Nb,Nb))
     
-        mat_dv = np.zeros((Nb,Nb))
-        mat_ddv = np.zeros((Nb,Nb))
-        
-        H = Hermite(z) # Hermite polynomails 
+    H = Hermite(z) # Hermite polynomails 
+
+    for i in range(Nb):
+        for j in range(i+1):
+            mat_dv[j,i] =  np.dot(dv * H[i] * H[j], w)
+            mat_ddv[j,i] = np.dot(ddv * H[i] * H[j], w)
     
-        for i in range(Nb):
-            for j in range(i+1):
-                mat_dv[j,i] =  np.dot(dv * H[i] * H[j], w)
-                mat_ddv[j,i] = np.dot(ddv * H[i] * H[j], w)
-        
-        mat_dv = sym(mat_dv) 
-        mat_ddv = sym(mat_ddv)
-    
-        V1 = np.vdot(c,mat_dv.dot(c)).real 
-        V2 = np.vdot(c,mat_ddv.dot(c)).real 
-    
-    elif indicator == 'average_phi0': # average computed with ensemble only 
-    
-    
-        V1 = np.dot(dv, w)
-        V2 = np.dot(ddv, w)
-        
+    mat_dv = sym(mat_dv) 
+    mat_ddv = sym(mat_ddv)
+
+    V1 = np.vdot(c,mat_dv.dot(c)).real 
+    V2 = np.vdot(c,mat_ddv.dot(c)).real 
 
     return V1,V2 
 
-@numba.autojit 
+
 def Vmat(a,x,xAve,w):
 
     z = (x - xAve)*np.sqrt(a)
@@ -228,12 +197,7 @@ def Vmat(a,x,xAve,w):
 
     return Vm 
 
-
 def Hermite(x):
-    """
-    Define Hermite polynomials multipiled by the normalization constant.  
-    Corresponding to the eigenstates of harmonic oscilator. 
-    """
 
     cons = np.array([1. / np.sqrt(float(2**n) * float(math.factorial(n))) for n in range(Nb)])
     
@@ -250,7 +214,6 @@ def Hermite(x):
 
     return H
 
-@numba.autojit 
 def M1mat(a):
     
     M1 = np.zeros((Nb,Nb)) 
@@ -261,8 +224,7 @@ def M1mat(a):
     M1 = sym(M1) 
 
     return M1 
-    
-@numba.autojit
+
 def M2mat(a):
     
     M2 = np.zeros((Nb,Nb)) 
@@ -278,12 +240,10 @@ def M2mat(a):
 
     return M2 
 
-@numba.autojit
 def Potential(x):
     
     return  x**2/2.0 + g * x**4 / 4.0
 
-@numba.autojit
 def Kmat(alpha,x,pAve):
 
     K = np.zeros((Nb,Nb),dtype=complex)
@@ -311,8 +271,7 @@ def Kmat(alpha,x,pAve):
     K = K / (2.*am) 
 
     return K 
-    
-@numba.autojit
+
 def Dmat(alpha,xAve,pAve):
 
     D = np.zeros((Nb,Nb),dtype=complex)
@@ -389,76 +348,6 @@ def SaveWf(alpha, pAve, S,c,xAve,xVar,fname='wft.dat'):
 
     f.close() 
 
-
-def xObs(a,c,x,xAve):
-    """
-    Compute <x> = tr[rho * M1] + xAve 
-    """
-    X = M1mat(a)
-    
-    y = np.vdot(c,X.dot(c)) 
-    
-    return  y.real + xAve 
-    
-def corr(alpha,w,x,xAve,c,pAve,S):
-    """
-    Compute correlation function 
-    C(t) = <psi(0) | psi(t)> 
-    For real initial wavefunction 
-    C(t) = <psi(-t/2)|psi(t/2)> = psi(t/2)**2 = sum_n c_n**2    
-    """
-    a, b = alpha.real, alpha.imag 
-    
-    phase = np.exp(1j*(- b * (x-xAve)**2 / 2.0 + pAve * (x-xAve) + S.real))
-    phase = phase*phase 
-    
-    z = (x-xAve) * sqrt(a)
-    
-    H = Hermite(z) # Hermite polynomails multiplied with normalization constant  
-
-    P = np.zeros((Nb,Nb), dtype=complex) # phase matrix elements
-    
-    for i in range(Nb):
-        for j in range(i+1):
-            P[j,i] =  np.dot(phase * H[i] * H[j], w) 
-   
-    
-    P = sym(P) 
-
-    cor = np.dot(c,P.dot(c))
-    
-    return cor 
-    
-def corr_single_basis(alpha,w,x,xAve,c,pAve,S):
-
-    """
-    Compute correlation function for case of single basis. <g0|gt>     
-    """
-    
-    global alpha0, x0, p0 
-    
-    a2 = -(np.conj(alpha0) + alpha) / 2.0 
-    a1 = x0 * np.conj(alpha0) + xAve * alpha + 1j * (pAve - p0) 
-    a0 = 1j * (S - np.conj(S0)) - (alpha0 * x0**2 + alpha * xAve**2) / 2.0 + 1j * (p0 * x0 - pAve * xAve) 
-    
-    return gwp_int(a2,a1) * np.exp(a0)
-    
-def gwp_int(a2,a1):
-    """
-    compute Gaussian integral int(exp( a2 * x**2 + a1 * x ), dx)    
-    """
-    return np.exp(-a1 * a1 / 4.0 / a2) * np.sqrt(np.pi/-a2)
-    
-@numba.autojit 
-def overlap(aj,qj,pj,ak,qk,pk):
-    """
-    Gaussian integration with complex alpha <zj|zk> 
-    """
-    dq = qk - qj 
-    dp = pk - pj 
-    return (aj.real*ak.real)**0.25 * sqrt(2./(np.conj(aj) + ak))   * exp(    \
-                -0.5 * np.conj(aj)*ak/(np.conj(aj)+ak) * (dp**2/np.conj(aj)/ak + dq**2  \
-                + 2.0*1j* (pj/np.conj(aj) + pk/ak) *dq)  )
     
 f1 = open('traj.dat', 'w')
 f2 = open('xAve.dat', 'w')
@@ -466,12 +355,13 @@ f3 = open('energy.dat', 'w')
 f4 = open('coeff.dat', 'w')
 f5 = open('norm.dat', 'w')
 f6 = open('energy.dat', 'w')
-f_cor = open('corr.out', 'w')
+
+#def corr(c0,c) 
 
 t = 0.0
 dt2 = dt/2.0 
-S0 = -1j*np.log(a/np.pi)/4.0 # phase in GWP 
-S = S0 
+S = -1j*np.log(a/np.pi)/4.0 # phase in GWP 
+
 
 xAve = np.dot(x,w)
 xSqdAve = np.dot(x*x,w) 
@@ -536,7 +426,7 @@ for k in range(Nt):
     
     # force fields
     V1,V2 = gwp_vp(a,x,xAve,w,c)
-    #print('V1,V2 = {} {} '.format(V1,V2))
+    print('V1,V2 = {} {} '.format(V1,V2))
 
     dv_eff = V1 + V2 * (x-xAve) 
 
@@ -553,10 +443,10 @@ for k in range(Nt):
     a, b = alpha.real, alpha.imag 
 
     # S is the real part of the complex phase term, imaginary part is absorbed 
-    # S contains the normalization constant N = exp(-S.imag)
+    # into the normalization constant N
     V0 = Potential(xAve)
     S  += ( pAve**2/2./am - V0 - alpha/2./am ) * dt 
-    # classical action S += (pAve**2/2./am - V0 ) * dt 
+    #S += (pAve**2/2./am - V0 ) * dt 
 
     # update c, second-order difference 
     dc = expand(alpha,V1,V2,x,xAve,pAve,w,c)
@@ -564,13 +454,6 @@ for k in range(Nt):
     cold = c 
     c = cnew 
 
-    # observables 
-    xt = xObs(a,c,x,xAve)
-    
-    # correlation function 
-    cor = corr(alpha,w,x,xAve,c,pAve,S) 
-    f_cor.write('{} {} {} \n'.format(t,cor.real, cor.imag))    
-    
     f5.write( '{} {} \n'.format(t,np.vdot(cold,cold)))
     
 
@@ -586,11 +469,10 @@ for k in range(Nt):
 
     f3.write('{} {} {} \n'.format(t,kAve,uAve))
     f1.write(fmt.format(t,*x[0:10]))
-    f2.write(' {} {} {} {} {} \n'.format(t,xt, xAve,pAve,xVar))
+    f2.write(' {} {} {} {} \n'.format(t,xAve,pAve,xVar))
     f4.write(fmtC.format(t,*c[0:Nb]))
 
 f1.close()
 f2.close() 
-f_cor.close() 
 
 
