@@ -11,6 +11,9 @@ It will consist of various different formulations of quantum mechanics and appro
 - Real-time quantum wavepacket dynamics 
 - Imaginary-time quantum wavepacket propagation 
 
+### Quantum trajectory method with friction (QTM_F) 
+
+
 ## Quantum Monte Carlo (QMC) 
 Imaginary-time propagation of arbitrary wavefunction 
 - Variational Monte Carlo 
