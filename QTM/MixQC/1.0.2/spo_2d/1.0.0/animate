@@ -1,0 +1,19 @@
+#!/bin/bash
+MAX=100
+echo "clear" > plot.gpi
+echo "reset" >> plot.gpi
+echo "set terminal gif animate delay 10 font \"/Library/Fonts/Georgia.ttf, 11\"" >> plot.gpi
+echo "set output \"animate.gif\"" >> plot.gpi
+echo "set pm3d map" >>plot.gpi
+echo "set cbrange [0:1]" >>plot.gpi
+echo "set ticslevel 0.8" >>plot.gpi
+echo "set xrange [*:*]" >> plot.gpi
+echo "set yrange [*:*]" >> plot.gpi
+echo "set zrange [*:*]" >>plot.gpi
+echo "set isosample 40,40" >> plot.gpi
+# echo "set hidden3d" >> plot.gpi
+for i in `seq 0 ${MAX}`
+do
+echo "splot 'wft' using 1:2:3 index ${i} not" \
+>> plot.gpi
+done

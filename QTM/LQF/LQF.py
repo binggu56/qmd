@@ -13,7 +13,7 @@ from math import *
 @numba.autojit
 def derivs(x):
     
-    g = 0.4 
+    g = 0.0 
     
     v0 = x**2/2.0 + g * x**4 / 4.0 
     dv = x + g * x**3 
@@ -62,7 +62,7 @@ def sym(V):
     return V 
     
 Ntraj = 1000 
-a = 1.0
+a = 2.0
 x0 = -1.0  
 x = np.random.randn(Ntraj)
 x = x / sqrt(2.0 * a) + x0 
@@ -71,17 +71,17 @@ p = np.zeros(Ntraj)
 w = np.array([1./Ntraj]*Ntraj)
 am = 1.0 
 
-Nt = 3000
-dt = 0.004 
+Nt = 4000
+dt = 0.005 
 dt2 = dt/2.0 
 t = 0.0 
 
 f = open('traj.dat','w')
-nout = 10       # number of trajectories to print 
+nout = 20       # number of trajectories to print 
 fmt =  ' {}' * (nout+1)  + '\n'   
 
 Ndim = 1        # dimensionality of the system  
-fr = 1.6       # friction constant  
+fr = 0.0       # friction constant  
 
 v0, dv = derivs(x)
 fq = qpot(x,w)

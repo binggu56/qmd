@@ -1,0 +1,9 @@
+10d0,500 \propagation dt, number of steps
+1.008,1.008,1.008 \mass of A,B,C [atomic weight]
+0.01d0,0.01d0  \xmin,ymin
+20d0,20d0  \xmax,ymax
+0.02d0    \grid spacing,cutoff on density for plotting
+4.d0,9.66d0,6d0,1.444d0,-7.0d0,0.d0 \wavepacket parameters 
+1 -1d0 \number of wavepackets and dp 
+2 1	\number of points in theta, isotop mass
+256 256  \number of R, r

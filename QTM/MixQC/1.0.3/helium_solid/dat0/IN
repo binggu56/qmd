@@ -1,0 +1,5 @@
+3000         # number of trajectories
+4000,3         # time steps
+0.00d0       # friction
+2d0          # initial guassian width
+

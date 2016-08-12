@@ -1,0 +1,3 @@
+rm four.x
+make four.x
+./four.x

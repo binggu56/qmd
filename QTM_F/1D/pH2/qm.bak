@@ -1,0 +1,188 @@
+        program main 
+        implicit real*8(a-h,o-z)
+	real*8 :: ki,po,qu,tot,x0,y0
+      	real*8 :: t,k1,k2,m1,m2,lambda
+     	real*8,allocatable :: ke(:),pe(:),x(:),y(:),px(:),py(:),w(:)
+        real*8,allocatable :: qfx(:),qfy(:),qp(:),fx(:),
+     &                        fy(:),s(:),dpx(:),dpy(:),s0(:)
+     	real*8 :: dv,dt,dt2,f(3),qx0,qy0,prob
+	real :: gasdev
+        open(100,file='output')
+        open(102,file='xav')
+	open(103,file='prob')
+	open(101,file='px.dat') 
+	open(104,file='ke.dat')
+      	open(105,file='weight.dat')
+        open(5,file='IN')
+
+	read(5,*) Ntraj
+        read(5,*) kmax,dt
+        read(5,*) m1,m2
+	read(5,*) idum1,idum2
+        read(5,*) ax,ay
+        read(5,*) qx0,qy0
+        close(5)
+        write(*,*) 'Quantum Trajectories'
+
+	allocate(ke(Ntraj),pe(Ntraj),x(Ntraj),
+     & y(Ntraj),px(Ntraj),py(Ntraj),s(Ntraj),
+     & w(Ntraj),qfx(Ntraj),qfy(Ntraj),
+     & qp(Ntraj),fx(Ntraj),fy(Ntraj),dpx(Ntraj),
+     & dpy(Ntraj),s0(Ntraj))
+
+        dt2=dt/2d0
+        t=0d0
+	s = 0d0
+
+	
+	do i=1,Ntraj
+	x(i)=gasdev(idum1)
+	y(i)=gasdev(idum2)
+        x(i)=x(i)/sqrt(4d0*ax)+qx0
+        y(i)=y(i)/sqrt(4d0*ay)+qy0
+!	write (105,*) x(i),y(i)
+	end do 
+       
+        do i=1,Ntraj
+          px(i) = 2d0*ax*(x(i)-qx0)
+          py(i) = 2d0*ay*(y(i)-qy0)
+	  s0(i) = ax*(x(i)-qx0)**2+ay*(y(i)-qy0)**2
+	enddo
+
+	s = s0
+
+c        print out the initial conditions        
+        write(*,*) 'Initial Conditions'
+        print *,'ax =',ax
+        print *,'ay =',ay
+        write(*,*) 'Number of trajectories =', Ntraj
+        write(*,*) 'Time steps =',kmax,dt
+        write(*,*) 'Mass =',m1,m2
+       
+        w=1d0/Ntraj
+
+c 	initial value for action function s
+c	do i=1,Ntraj
+c	s(i)=px(i)*(x(i)-x0)+py(i)*(y(i)-y0)
+c        enddo
+! begin the time step loop
+	call derivs(x,y,Ntraj,fx,fy,pe)
+        do 10 k=1,kmax
+! increase t by dt
+	t=t+dt	
+
+	call qpot(m1,m2,x,y,px,py,w,Ntraj,qp,qfx,qfy,dpx,dpy)
+        
+	do  i=1,Ntraj
+          px(i)=px(i)+(-fx(i)-qfx(i))*dt-px(i)*dpx(i)/m1*dt
+          py(i)=py(i)+(-fy(i)-qfy(i))*dt-py(i)*dpy(i)/m2*dt
+        enddo
+	 
+	do i=1,Ntraj
+	  s(i) = s(i)+(-px(i)**2/2d0/m1-py(i)**2/2d0/m2+pe(i)+
+     &           qp(i))*dt
+     	  w(i) = exp(-2d0*(s(i)-s0(i)))*1d0/Ntraj
+        enddo
+        
+!	call qpot(m1,m2,x,y,px,py,w,Ntraj,qp,qfx,qfy,dpx,dpy)
+
+!	do  i=1,Ntraj
+!          px(i)=px(i)+(-fx(i)-qfx(i))*dt2-px(i)*dpx(i)/m1*dt2
+!          py(i)=py(i)+(-fy(i)-qfy(i))*dt2-py(i)*dpy(i)/m2*dt2
+!        enddo
+! update weights for guassian trajectories
+!	do i=1,Ntraj
+!	  w(i) = exp(-2d0*(s(i)-s0(i)))*1d0/Ntraj
+!	enddo
+	
+
+! update potential, kinetic, and total energy for each trajectory	
+        
+	do i=1,Ntraj
+	  ke(i) = px(i)**2/(2d0*m1)+py(i)**2/(2d0*m2)
+	enddo
+! print out a random trajectory	
+        
+	write(101,10000) t,(px(i),i=1,20)
+	write(104,10000) t,(ke(i),i=1,20)
+
+c       calculate the expectation value of x,y 
+!        xav=0d0
+!        yav=0d0
+!        xx=0d0
+!        yy=0d0
+!        prob=0d0
+!        do i=1,Ntraj
+!        if (x(i) .lt. -5d0) then
+!        prob=prob+w(i)
+!        endif
+!        xav=w(i)*x(i)+xav
+!        yav=w(i)*y(i)+yav
+!        xx=x(i)**2*w(i)+xx
+!        yy=y(i)**2*w(i)+yy
+!        enddo
+!        write(102,10000) t,xav,yav,xx,yy
+!	write(103,10000) t,prob
+
+
+! calculate the total energy, the sum of all the trajectories
+	
+          call aver(Ntraj,w,pe,po)
+          call aver(Ntraj,w,ke,ki)
+          call aver(Ntraj,w,qp,qu)
+
+	  ww = 0d0
+	  do i=1,Ntraj
+	    ww = ww+w(i)
+	  enddo
+
+	  write(105,10000) t,ww
+
+	  tot=(-ki+po+qu)/ww
+
+          write(100,10000) t,po/ww,ki/ww,qu/ww,tot
+
+10	end do
+	write(*,*) 'Total Energy = ', tot
+10000   format(100(e14.7,1x))   
+	end program main
+
+        
+!----------------------------------------------
+! average over trajectories y = sum(w(i)**x(i))
+!----------------------------------------------
+        subroutine aver(Ntraj,w,x,y)
+        implicit real*8(a-h,o-z)
+        real*8 :: x(Ntraj),w(Ntraj)
+        y = 0d0
+
+        do i=1,Ntraj
+          y = y+x(i)*w(i) 
+        enddo
+        
+        return
+        end subroutine
+
+
+	subroutine derivs(x,y,Ntraj,fx,fy,pe)
+        implicit real*8(a-h,o-z)
+        integer*4,intent(IN) :: Ntraj
+        real*8,intent(IN) :: x(Ntraj),y(Ntraj)
+        real*8 :: De,a,x0,y0,b,c,d,e,v,f,w,ky,xmin
+        real*8,intent(OUT) :: fx(Ntraj),fy(Ntraj),pe(Ntraj)
+
+        ak = 0.8d0
+        do i=1,Ntraj
+          fx(i)=-x(i)-ak*y(i)
+          fy(i)=-y(i)-ak*x(i)
+          pe(i)=x(i)**2/2d0+y(i)**2/2d0+ak*x(i)*y(i)
+        enddo
+
+        RETURN
+        END subroutine
+
+
+
+
+
+

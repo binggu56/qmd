@@ -1,0 +1,16 @@
+        subroutine derivs(x,y,Ntraj,fx,fy,pe)
+        implicit real*8(a-h,o-z)
+        integer*4,intent(IN) :: Ntraj
+        real*8,intent(IN) :: x(Ntraj),y(Ntraj)
+        real*8 :: De,a,x0,y0,b,c,d,e,v,f,w,ky,xmin
+        real*8,intent(OUT) :: fx(Ntraj),fy(Ntraj),pe(Ntraj)
+
+	ak = 0.8d0
+        do i=1,Ntraj
+          fx(i)=-x(i)-ak*y(i)
+          fy(i)=-y(i)-ak*x(i)
+          pe(i)=x(i)**2/2d0+y(i)**2/2d0+ak*x(i)*y(i)
+        enddo
+
+	RETURN
+      	END subroutine

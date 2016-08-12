@@ -1,0 +1,112 @@
+clear
+reset
+set terminal gif animate delay 10 font "/Library/Fonts/Georgia.ttf, 11"
+set output "animate.gif"
+set pm3d map
+set cbrange [0:1]
+set ticslevel 0.8
+set xrange [*:*]
+set yrange [*:*]
+set zrange [*:*]
+set isosample 40,40
+splot 'wft' using 1:2:3 index 0 not
+splot 'wft' using 1:2:3 index 1 not
+splot 'wft' using 1:2:3 index 2 not
+splot 'wft' using 1:2:3 index 3 not
+splot 'wft' using 1:2:3 index 4 not
+splot 'wft' using 1:2:3 index 5 not
+splot 'wft' using 1:2:3 index 6 not
+splot 'wft' using 1:2:3 index 7 not
+splot 'wft' using 1:2:3 index 8 not
+splot 'wft' using 1:2:3 index 9 not
+splot 'wft' using 1:2:3 index 10 not
+splot 'wft' using 1:2:3 index 11 not
+splot 'wft' using 1:2:3 index 12 not
+splot 'wft' using 1:2:3 index 13 not
+splot 'wft' using 1:2:3 index 14 not
+splot 'wft' using 1:2:3 index 15 not
+splot 'wft' using 1:2:3 index 16 not
+splot 'wft' using 1:2:3 index 17 not
+splot 'wft' using 1:2:3 index 18 not
+splot 'wft' using 1:2:3 index 19 not
+splot 'wft' using 1:2:3 index 20 not
+splot 'wft' using 1:2:3 index 21 not
+splot 'wft' using 1:2:3 index 22 not
+splot 'wft' using 1:2:3 index 23 not
+splot 'wft' using 1:2:3 index 24 not
+splot 'wft' using 1:2:3 index 25 not
+splot 'wft' using 1:2:3 index 26 not
+splot 'wft' using 1:2:3 index 27 not
+splot 'wft' using 1:2:3 index 28 not
+splot 'wft' using 1:2:3 index 29 not
+splot 'wft' using 1:2:3 index 30 not
+splot 'wft' using 1:2:3 index 31 not
+splot 'wft' using 1:2:3 index 32 not
+splot 'wft' using 1:2:3 index 33 not
+splot 'wft' using 1:2:3 index 34 not
+splot 'wft' using 1:2:3 index 35 not
+splot 'wft' using 1:2:3 index 36 not
+splot 'wft' using 1:2:3 index 37 not
+splot 'wft' using 1:2:3 index 38 not
+splot 'wft' using 1:2:3 index 39 not
+splot 'wft' using 1:2:3 index 40 not
+splot 'wft' using 1:2:3 index 41 not
+splot 'wft' using 1:2:3 index 42 not
+splot 'wft' using 1:2:3 index 43 not
+splot 'wft' using 1:2:3 index 44 not
+splot 'wft' using 1:2:3 index 45 not
+splot 'wft' using 1:2:3 index 46 not
+splot 'wft' using 1:2:3 index 47 not
+splot 'wft' using 1:2:3 index 48 not
+splot 'wft' using 1:2:3 index 49 not
+splot 'wft' using 1:2:3 index 50 not
+splot 'wft' using 1:2:3 index 51 not
+splot 'wft' using 1:2:3 index 52 not
+splot 'wft' using 1:2:3 index 53 not
+splot 'wft' using 1:2:3 index 54 not
+splot 'wft' using 1:2:3 index 55 not
+splot 'wft' using 1:2:3 index 56 not
+splot 'wft' using 1:2:3 index 57 not
+splot 'wft' using 1:2:3 index 58 not
+splot 'wft' using 1:2:3 index 59 not
+splot 'wft' using 1:2:3 index 60 not
+splot 'wft' using 1:2:3 index 61 not
+splot 'wft' using 1:2:3 index 62 not
+splot 'wft' using 1:2:3 index 63 not
+splot 'wft' using 1:2:3 index 64 not
+splot 'wft' using 1:2:3 index 65 not
+splot 'wft' using 1:2:3 index 66 not
+splot 'wft' using 1:2:3 index 67 not
+splot 'wft' using 1:2:3 index 68 not
+splot 'wft' using 1:2:3 index 69 not
+splot 'wft' using 1:2:3 index 70 not
+splot 'wft' using 1:2:3 index 71 not
+splot 'wft' using 1:2:3 index 72 not
+splot 'wft' using 1:2:3 index 73 not
+splot 'wft' using 1:2:3 index 74 not
+splot 'wft' using 1:2:3 index 75 not
+splot 'wft' using 1:2:3 index 76 not
+splot 'wft' using 1:2:3 index 77 not
+splot 'wft' using 1:2:3 index 78 not
+splot 'wft' using 1:2:3 index 79 not
+splot 'wft' using 1:2:3 index 80 not
+splot 'wft' using 1:2:3 index 81 not
+splot 'wft' using 1:2:3 index 82 not
+splot 'wft' using 1:2:3 index 83 not
+splot 'wft' using 1:2:3 index 84 not
+splot 'wft' using 1:2:3 index 85 not
+splot 'wft' using 1:2:3 index 86 not
+splot 'wft' using 1:2:3 index 87 not
+splot 'wft' using 1:2:3 index 88 not
+splot 'wft' using 1:2:3 index 89 not
+splot 'wft' using 1:2:3 index 90 not
+splot 'wft' using 1:2:3 index 91 not
+splot 'wft' using 1:2:3 index 92 not
+splot 'wft' using 1:2:3 index 93 not
+splot 'wft' using 1:2:3 index 94 not
+splot 'wft' using 1:2:3 index 95 not
+splot 'wft' using 1:2:3 index 96 not
+splot 'wft' using 1:2:3 index 97 not
+splot 'wft' using 1:2:3 index 98 not
+splot 'wft' using 1:2:3 index 99 not
+splot 'wft' using 1:2:3 index 100 not

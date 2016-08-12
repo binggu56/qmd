@@ -1,0 +1,14 @@
+#!/bin/bash
+# set the name of the job
+#$ -N he
+# set the name of output file
+#$ -o log 
+#$ -j y
+# change to the current directory
+#$ -cwd
+echo $(date)
+time ./qm
+echo $(date)
+exit 0
+
+

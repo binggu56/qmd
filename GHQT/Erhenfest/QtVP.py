@@ -6,14 +6,13 @@ import numpy as np
 from math import *  
 import numba 
 
-Ntraj = 2000 
+Ntraj = 1000 
 print('Number of trajectories = {} \n'.format(Ntraj))
 
 dt = 0.004
 am = 1.0 
 
 # initial values has to be stored to compute autocorrelation function 
-
 x0 = -1.0 
 p0 = 0.0 
 alpha0 = 1.0+0j
@@ -22,10 +21,13 @@ alpha = alpha0
 a = alpha.real 
 b = alpha.imag
 
-g = 0.0 # anharmonic constant in potential 
+g = 0.1 # anharmonic constant in potential 
 
-Nt = input('Time interval = {} \n How many time steps? '.format(dt))
+Nt = int(input('Time interval = {} \n How many time steps? '.format(dt)))
 p = np.zeros(Ntraj)
+
+# phaes of quantum trajectories 
+s = np.zeros(Ntraj)
 
 sampling = 'uniform' 
 if sampling == 'normal':
@@ -47,18 +49,25 @@ else:
 def derivs(x):
     
     # v = V0 + V1*(x-xAve) + V2 * (x-xAve)**2/2.
+    v0 =  x**2/2.0 + g * x**4 / 4.0 
     dv =  x + g * x**3 
     ddv = 1.0 + 3.0 * g * x**2 
 
-    return dv,ddv
+    return v0, dv, ddv
     
-@numba.autojit
-def Hessian(x):
-    V0 =  x**2/2.0 + g*x**4/4. 
-    V1 =  x + g * x**3
-    V2 =  1.0 + 3.0 * g * x**2
+#@numba.autojit
+#def Hessian(x):
+#    V0 =  x**2/2.0 + g*x**4/4. 
+#    V1 =  x + g * x**3
+#    V2 =  1.0 + 3.0 * g * x**2
+#
+#    return V0,V1,V2
 
-    return V0,V1,V2
+@numba.autojit
+def Potential(x):
+    
+    return  x**2/2.0 + g * x**4 / 4.0
+
 
 @numba.autojit 
 def LQF(x,w,xAve,var):
@@ -67,11 +76,11 @@ def LQF(x,w,xAve,var):
     r = - a * (x-xAve) 
     dr = - a 
 
-    uAve =  (np.dot(r**2,w))/2./am 
+    u =  -1.0 / 2.0 / am * ( r**2 + dr ) 
     
     du = -1./am * (r*dr)
 
-    return uAve,du 
+    return u, du 
 
 def qpot(x,w,xAve,xVar):
 
@@ -136,7 +145,7 @@ def expand(alpha,V1,V2,x,xAve,pAve,w,c):
 
     matK = np.identity(Nb) 
     for j in range(Nb):
-        matK[j,j] = (j+0.5) * a/am 
+        matK[j,j] = float(j) * a/am 
 
 
 
@@ -149,6 +158,8 @@ def expand(alpha,V1,V2,x,xAve,pAve,w,c):
 
     #V[1,1] = np.dot(DeltaV * H1 * H1, w) 
     #V[2,2] = np.dot(DeltaV * H2 * H2, w) 
+
+    print('propagation matrix',-matV0 - V1 * M1 - V2/2.0 * M2 + V)
 
     dc = (-1j* (-matV0 - V1 * M1 - V2/2.0 * M2 + V + matK )).dot(c)
 
@@ -166,7 +177,7 @@ def gwp_vp(a,x,xAve,w,c):
     
     z = np.sqrt(a)*(x-xAve)
 
-    dv,ddv = derivs(x)
+    v0,dv,ddv = derivs(x)
         
     if indicator == 'average_psi':
     
@@ -195,7 +206,7 @@ def gwp_vp(a,x,xAve,w,c):
 
     return V1,V2 
 
-@numba.autojit 
+
 def Vmat(a,x,xAve,w):
 
     z = (x - xAve)*np.sqrt(a)
@@ -209,17 +220,27 @@ def Vmat(a,x,xAve,w):
     #v = V0 * np.identidy(Nb) 
     
     Vm = np.zeros((Nb,Nb))
+
+    method = 'QT' # or 'QT' 
     
-    H = Hermite(z) # Hermite polynomails 
+    if method == 'QT':
+    
+        H = Hermite(z) # Hermite polynomails 
+    
+        for i in range(Nb):
+            for j in range(i+1):
+                Vm[j,i] =  np.dot(V * H[i] * H[j], w)
+    
+        #Vm = symmetrize(Vm) 
+        for i in range(Nb):
+            for j in range(i):
+                Vm[i,j] = Vm[j,i]
 
-    for i in range(Nb):
-        for j in range(i+1):
-            Vm[j,i] =  np.dot(V * H[i] * H[j], w)
-
-    #Vm = symmetrize(Vm) 
-    for i in range(Nb):
-        for j in range(i):
-            Vm[i,j] = Vm[j,i] 
+    elif method == 'exact':
+        
+        M2 = M2mat(a)
+        M4 = M4mat(a)
+        Vm = M2/2.0 + g/4.0 * M4     # incorrect     
 
     #Vm[0,0] = np.dot(V,w) 
     #Vm[0,1] = np.dot(V * H[] * H1, w) 
@@ -235,7 +256,7 @@ def Hermite(x):
     Corresponding to the eigenstates of harmonic oscilator. 
     """
 
-    cons = np.array([1. / np.sqrt(float(2**n) * float(math.factorial(n))) for n in range(Nb)])
+    cons = np.array([1. / np.sqrt(float(2**n * factorial(n))) for n in range(Nb)])
     
     H = [] 
     H.append(1.0) 
@@ -245,7 +266,7 @@ def Hermite(x):
             Hn = 2.0 * x * H[n-1] - 2.0*(n-1) * H[n-2]
             H.append(Hn)
     
-    for n in xrange(Nb):
+    for n in range(Nb):
         H[n] = H[n]*cons[n] 
 
     return H
@@ -278,10 +299,45 @@ def M2mat(a):
 
     return M2 
 
-@numba.autojit
-def Potential(x):
+def M3mat(a):
     
-    return  x**2/2.0 + g * x**4 / 4.0
+    M3 = np.zeros((Nb,Nb)) 
+
+    for m in range(Nb-1):
+        M3[m,m+1] = 3.0 * (float(m+1)/2./a)**1.5 
+
+    if Nb > 2:
+        for m in range(Nb-3):
+            M3[m,m+3] = np.sqrt(float((m+1)*(m+2)*(m+3))) / (2.0*a)**1.5 
+    
+    M3 = sym(M3) 
+
+    return M3 
+
+def M4mat(a):
+    
+    M4 = np.zeros((Nb,Nb))
+
+    for m in range(Nb):
+        M4[m,m] =  float(3.0 * m**2 + 3.0 * (m+1)**2) / (2.*a)**2
+    
+    if Nb > 1: 
+        for m in range(Nb-2):
+            M4[m,m+2] = (4.0*m + 6.0) * np.sqrt(float((m+1)*(m+2))) / (2.*a)**2
+            
+    if Nb > 3: 
+        for m in range(Nb-4):
+            M4[m,m+4] = np.sqrt(float((m+1)*(m+2)*(m+3)*(m+4))) / (2.0*a)**2
+
+    M4 = sym(M4) 
+
+#    if Nb > 1:
+#        if not M4[0,1] == M4[1,0]: 
+#            print(M4) 
+#            print('\n ERROR: Not symmetric matrix M4.\n')
+#            sys.exit() 
+    return M4
+
 
 @numba.autojit
 def Kmat(alpha,x,pAve):
@@ -381,9 +437,9 @@ def SaveWf(alpha, pAve, S,c,xAve,xVar,fname='wft.dat'):
     #phi2 = Hermite(z,2) * phi0 
     #phi2 = (4. * z*z - 2.) / 4. / np.sqrt(2.) * phi0 
 
-    for i in xrange(len(x)):
+    for i in range(len(x)):
         wf = 0.+0.j 
-        for j in xrange(Nb):
+        for j in range(Nb):
             wf += c[j]*basis[j][i] 
         f.write('{} {} {} \n'.format(x[i], wf.real,wf.imag))
 
@@ -400,19 +456,19 @@ def xObs(a,c,x,xAve):
     
     return  y.real + xAve 
     
-def corr(alpha,w,x,xAve,c,pAve,S):
+def corr(alpha,w,x,xAve,c,pAve,s):
     """
     Compute correlation function 
     C(t) = <psi(0) | psi(t)> 
     For real initial wavefunction 
     C(t) = <psi(-t/2)|psi(t/2)> = psi(t/2)**2 = sum_n c_n**2    
     """
-    a, b = alpha.real, alpha.imag 
+    a = alpha.real
     
-    phase = np.exp(1j*(- b * (x-xAve)**2 / 2.0 + pAve * (x-xAve) + S.real))
-    phase = phase*phase 
+    #phase = np.exp(1j*(- b * (x-xAve)**2 / 2.0 + pAve * (x-xAve) + S.real))
+    #phase = phase**2  
     
-    z = (x-xAve) * sqrt(a)
+    z = (x-xAve) * np.sqrt(a)
     
     H = Hermite(z) # Hermite polynomails multiplied with normalization constant  
 
@@ -420,8 +476,7 @@ def corr(alpha,w,x,xAve,c,pAve,S):
     
     for i in range(Nb):
         for j in range(i+1):
-            P[j,i] =  np.dot(phase * H[i] * H[j], w) 
-   
+            P[j,i] =  sum(H[i] * H[j] * np.exp(2j*s) * w) 
     
     P = sym(P) 
 
@@ -470,7 +525,7 @@ f_cor = open('corr.out', 'w')
 
 t = 0.0
 dt2 = dt/2.0 
-S0 = -1j*np.log(a/np.pi)/4.0 # phase in GWP 
+S0 = -1j*np.log(a/np.pi)/4.0 # complex phase factor in GWP 
 S = S0 
 
 xAve = np.dot(x,w)
@@ -484,7 +539,7 @@ print('Mean position = {}, Variance = {} '.format(xAve,xVar))
 print('Initial momentum {}'.format(pAve))
 
 # initial expansion coeffs
-Nb = input('Please enter number of basis function \n ')
+Nb = int(input('Please enter number of basis function \n '))
 c = np.zeros(Nb,dtype=complex) 
 c[0] = 1.0
 # ----------
@@ -494,13 +549,18 @@ c[0] = 1.0
 V1,V2 = gwp_vp(a,x,xAve,w,c)
 print('V1,V2 = {} {} '.format(V1,V2))
 
+# effective potential and force field 
+V0 = Potential(xAve)
+Veff = V0 + V1 * (x-xAve) + V2/2.0 * (x-xAve)**2 
+
 dv_eff = V1 + V2 * (x-xAve)
 
 # quantum force 
-uAve,du = LQF(x,w,xAve,xVar)
+u, du = LQF(x,w,xAve,xVar)
+uAve = sum(u * w)
 
 V = Potential(x) 
-vAve = np.dot(V,w) 
+v = np.dot(V,w) 
 print(' Quantum potential = {} \n '.format(uAve))
 #print(' Potential = {} \n '.format(vAve))
 #print(' Total energy = {} \n '.format(uAve+vAve))
@@ -527,20 +587,22 @@ for k in range(Nt):
     # leap-frog alg for {x,p}
     p = p - dv_eff*dt2 - du*dt2 
     
-    x += p * dt / am 
+    x += p/am * dt2 
+    s += (p * p / 2.0 / am - (Veff + u)) * dt 
+    x += p/am * dt2 
     
     # compute observables 
     xAve = np.dot(x,w)
     xSqdAve = np.dot(x*x,w) 
     xVar = (xSqdAve - xAve**2) 
     
-    # force fields
+    # effective force fields
     V1,V2 = gwp_vp(a,x,xAve,w,c)
     #print('V1,V2 = {} {} '.format(V1,V2))
-
+    Veff = V0 + V1 * (x-xAve) + V2/2.0 * (x-xAve)**2
     dv_eff = V1 + V2 * (x-xAve) 
 
-    uAve, du = LQF(x,w,xAve,xVar)
+    u, du = LQF(x,w,xAve,xVar)
 
     p += - dv_eff*dt2 - du*dt2 
 
@@ -568,8 +630,8 @@ for k in range(Nt):
     xt = xObs(a,c,x,xAve)
     
     # correlation function 
-    cor = corr(alpha,w,x,xAve,c,pAve,S) 
-    f_cor.write('{} {} {} \n'.format(t,cor.real, cor.imag))    
+    cor = corr(alpha,w,x,xAve,c,pAve,s) 
+    f_cor.write('{} {} {} \n'.format(2.0 * t,cor.real, cor.imag))    
     
     f5.write( '{} {} \n'.format(t,np.vdot(cold,cold)))
     

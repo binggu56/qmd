@@ -1,0 +1,3 @@
+set ylabel "Transform Magnitude"
+set xlabel "Energy (Eh)"
+plot "smat" u 1:8 not lw 2 w lines

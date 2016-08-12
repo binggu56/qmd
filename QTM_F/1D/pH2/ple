@@ -1,0 +1,13 @@
+#
+
+set term aqua
+#set xr [0:1]
+plot "output" u 1:2 title "potential" with lines lw 2, \
+     "output" u 1:3 title "kinetic" with lines lw 2, \
+     "output" u 1:4 title "quantum potential" with lines lw 2, \
+     "output" u 1:5 title "total energy" with lines lw 2	
+
+#set term postscript
+#set output "energy.ps"
+
+#replot

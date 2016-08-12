@@ -1,0 +1,8 @@
+1000        # number of trajectories
+3000,0.001d0 # time steps
+1d0,1d0     # mass
+6,7      # idum1 & idum2
+0.5d0,0.5d0   # constants for initial wavefunction
+0d0,0d0      # center for the wavepacket
+5	     # ipot
+

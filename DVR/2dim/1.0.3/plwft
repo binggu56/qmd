@@ -1,0 +1,13 @@
+#
+
+#set term aqua
+set term  postscript  enhanced  
+set output 'psi.eps'
+set pm3d map 
+set ticslevel 0.8
+set isosample 40,40
+set xrange [*:*]
+set yrange [*:*]
+set palette color
+splot "vec" u 1:2:4 
+pause -1

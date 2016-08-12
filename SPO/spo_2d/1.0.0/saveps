@@ -1,0 +1,6 @@
+#
+
+set term postscript
+set output 'temp.ps'
+replot
+

@@ -1,0 +1,5 @@
+plot 'en.dat' u 1:2 with lines lw 2 ti "TOTAL ENERGY", \
+     'en.dat' u 1:4 with lines lw 2 ti "KINETIC ENERGY", \
+     'en.dat' u 1:5 with lines lw 2 ti "POTENTIAL ENERGY"
+
+pause -1 

@@ -1,5 +1,5 @@
 	module pH2 
-	real*8, parameter :: a2bohr = 0.52917721092, wavenum2hart = 219474.63 
+	real*8, parameter :: a2bohr = 0.52917721092, hartree_wavenumber = 219474.63 
 	real*8, parameter :: re = 3.47005, De = 24.2288 
 	real*8, parameter :: r_ref = 4.60, Vmin = -24.2288 
 	
@@ -22,62 +22,57 @@
 	
 
 
+	program main 
+	
+	use pH2, only : hartree_wavenumber 
 
+	implicit real*8(a-h,o-z)
 
-      program main 
-      implicit real*8(a-h,o-z)
-      real*8 :: ki,k1,k2,m1,m2
-     	real*8,allocatable :: ke(:),V(:),x(:),y(:),px(:),py(:),w(:),c(:)
-      real*8,allocatable :: qfx(:),qfy(:),qp(:),fx(:),rx(:),      & 
-                           fy(:),s(:),dpx(:),dpy(:),s0(:),dr(:),ddr(:), & 
-                           ap(:),ar(:),ddp(:)
-     	real*8 :: f(3),err(2) 
+	real*8,allocatable :: ke(:),V(:),x(:),y(:),px(:),py(:),w(:),c(:)
+	real*8,allocatable :: qfx(:),qfy(:),qp(:),fx(:),rx(:),      & 
+					   fy(:),s(:),dpx(:),dpy(:),s0(:),dr(:),ddr(:), & 
+					   ap(:),ar(:),ddp(:)
+	real*8 :: f(3),err(2) 
 
-      real :: gasdev
-      complex*16 :: cor,im
-      common/smaple/xmin,xmax,dx
+	real :: gasdev
+	complex*16 :: cor,im
+	common/smaple/xmin,xmax,dx
 
-      open(100,file='energy.out')
-      open(102,file='xav.out')
+	open(100,file='energy.dat')
+	open(102,file='xav.out')
 	open(103,file='pes.out')
 	open(101,file='p.out') 
 	open(104,file='ke.out')
-      open(105,file='weight.out')
-      open(106,file='traj.out')
-      open(107,file='cor.out')
-      open(119,file='err.out')
-      open(120,file='px.out')
+	open(105,file='weight.out')
+	open(106,file='traj.out')
+	open(107,file='cor.out')
+	open(119,file='err.out')
+	open(120,file='px.out')
 
-      open(5,file='IN')
-      read(5,*) Ntraj
-      read(5,*) kmax,dt
-      read(5,*) m1
-      read(5,*) idum1
-      read(5,*) ax
-      read(5,*) qx0,p0 
-      read(5,*) fc
-      close(5)
+	open(5,file='IN')
+	read(5,*) Ntraj
+	read(5,*) kmax,dt
+	read(5,*) am
+	read(5,*) idum1
+	read(5,*) ax
+	read(5,*) qx0,p0 
+	read(5,*) fc
+	close(5)
 
-      allocate(ke(Ntraj),V(Ntraj),x(Ntraj))
-      allocate(y(Ntraj),px(Ntraj),py(Ntraj),s(Ntraj),w(Ntraj),qfx(Ntraj)) 
-      allocate(qfy(Ntraj),qp(Ntraj),fx(Ntraj),fy(Ntraj),dpx(Ntraj),dpy(Ntraj),s0(Ntraj))
-      allocate(c(ntraj),rx(ntraj),dr(ntraj),ddr(ntraj),ap(ntraj),ar(ntraj),ddp(ntraj))
+	allocate(ke(Ntraj),V(Ntraj),x(Ntraj))
+	allocate(y(Ntraj),px(Ntraj),py(Ntraj),s(Ntraj),w(Ntraj),qfx(Ntraj)) 
+	allocate(qfy(Ntraj),qp(Ntraj),fx(Ntraj),fy(Ntraj),dpx(Ntraj),dpy(Ntraj),s0(Ntraj))
+	allocate(c(ntraj),rx(ntraj),dr(ntraj),ddr(ntraj),ap(ntraj),ar(ntraj),ddp(ntraj))
 
-      dt2 = dt/2d0
-      t = 0d0
-      s = 0d0
-      pi = 4.d0*atan(1.d0)
-      pow = 6d0
-      
-      im = (0d0,1d0)
-!      xmin = qx0-dsqrt(pow/ax)
-!      xmax = qx0+dsqrt(pow/ax)
-      xmin = -3d0
-      xmax = 3d0
-      dx = (xmax-xmin)/(ntraj-1)
+	dt2 = dt/2d0
+	t = 0d0
+	s = 0d0
+	pi = 4.d0*atan(1.d0)
+	pow = 6d0
 
-      ww = 0d0
+	im = (0d0,1d0)
 
+    ww = 0d0
       do i=1,Ntraj
         x(i) = gasdev(idum1)
         x(i)=x(i)/sqrt(4d0*ax)+qx0
@@ -86,28 +81,25 @@
 !        c(i) = -ax*(x(i)-qx0)**2+log(dsqrt(2d0*ax/pi))/2d0
 !        w(i) = exp(2d0*c(i))*dx
         w(i) = 1d0/Ntraj
-        rx(i) = -2d0*ax*(x(i)-qx0) 
+        rx(i) = - 2d0*ax*(x(i)-qx0) 
         ww = ww+w(i)
       enddo 
       
       write(*,*) 'Weights = ', ww
        
-      do i=1,Ntraj
-        px(i) = p0 
-!        py(i) = 2d0*ay*(y(i)-qy0)
-!        s0(i) = ax*(x(i)-qx0)**2+ay*(y(i)-qy0)**2
-      enddo
+       px = p0 
 
 
-!        print out the initial conditions        
-        write(*,*) 'Initial Conditions'
-        print *,'ax =',ax
-        write(*,*) 'Number of trajectories =', Ntraj
-        write(*,*) 'Time steps =',kmax,dt
-        write(*,*) 'Mass =',m1
+! ---- print out the initial conditions        
+	write(*,*) 'Initial Conditions'
+	print *,'ax =',ax
+	write(*,*) 'Number of trajectories =', Ntraj
+	write(*,*) 'Time steps =',kmax,dt
+	write(*,100) am, p0 
+100	format('Mass = ',f14.7, 'Initial mementum',f14.7) 
        
-      s = 0d0
-! 	initial value for action function s
+	s = 0d0
+	! --- initial value for action function s
 	do i=1,Ntraj
 		s(i) = px(i)*(x(i)-x0)
 	enddo
@@ -122,24 +114,46 @@
     enddo
 
       write(*,*) 'friction coeff =',fc
-      
-      am = m1 
+
+    print *,'initial trajectory', minval(x),maxval(x) 
+ 
+          call derivs(x,ntraj,fx,v)
+          call fitp(am,x,px,rx,w,Ntraj,dpx,ddp,dr,ddr,qp,ap,ar,err)    
+
+    print *,'fx',fx(1:10)
+    print *,'dr',dr(1:10)
+    print *,'dp',dpx(1:10) 
 
 !     begin the time step loop
         do 10 k=1,kmax
 
-          t=t+dt   ! increase t by dt
-
-          call derivs(x,ntraj,fx,v)
-          call fitp(am,x,px,rx,w,Ntraj,dpx,ddp,dr,ddr,qp,ap,ar,err)
+          t = t + dt   ! increase t by dt
 
           do i=1,Ntraj
-            x(i) = x(i) + px(i) / am * dt
-            px(i) = px(i)+(fx(i)-fc * px(i) + 1d0/2d0/am * (2d0 * ar(i)*dr(i) + ddr(i)))*dt
-!            c(i) = c(i)+(-1d0/m1*(rx(i)*px(i)+dpx(i)/2d0))*dt
-            rx(i) = rx(i)- 1d0/2d0/am * (2.0 * dpx(i)*ar(i) + ddp(i))*dt
+
+            px(i) = px(i)+ ( fx(i) + 1d0/2d0/am * (2d0 * rx(i)*dr(i) + ddr(i)))*dt2 - fc * px(i) * dt2 
+            rx(i) = rx(i) - 1d0/2d0/am * (2.0 * dpx(i) * rx(i) + ddp(i))*dt2
+
           enddo
-  
+ 
+        print *,'px',px(1:10) 
+
+          do i=1,ntraj  
+            x(i) = x(i) + px(i) / am * dt
+          enddo 
+
+        print *,'x',x(1:10) 
+
+          call derivs(x,ntraj,fx,v)
+          call fitp(am,x,px,rx,w,Ntraj,dpx,ddp,dr,ddr,qp,ap,ar,err)    
+ 
+          do i=1,Ntraj
+          
+            px(i) = px(i)+ ( fx(i) - fc * px(i) + 1d0/2d0/am * (2d0 * rx(i)*dr(i) + ddr(i)))*dt2
+            rx(i) = rx(i) - 1d0/2d0/am * (2.0 * dpx(i) * rx(i) + ddp(i))*dt2
+
+          enddo       
+          
           do i=1,Ntraj
             s(i) = s(i)+(- px(i)**2/2d0/am - v(i)-qp(i))*dt
           enddo
@@ -170,15 +184,11 @@
           call aver(Ntraj,w,V,VAve)
           call aver(Ntraj,w,qp,UAVe)
         if(UAve < 0) then 
-			print('Quantum potential = ',UAve, ' Cannot be a negative number'/)
+			print *,'Quantum potential = ',UAve, ' Cannot be a negative number'
+			stop 
 		endif 
 
-	  ww = 0d0
-	  do i=1,Ntraj
-	    ww = ww + w(i)
-	  enddo
-	  write(105,10000) t,ww
-
+	print *, 'p',px(1:10) 
       
 ! --- autocorrelation 
       cor = (0d0,0d0)
@@ -187,7 +197,10 @@
       enddo
         write(107,10000) t,cor,abs(cor)
 
-        Etot = (Ek + VAve + UAve)
+		Ek = Ek * hartree_wavenumber
+		VAve = VAve * hartree_wavenumber
+		UAve = UAVe * hartree_wavenumber
+        Etot = (Ek + VAve + UAve) 
         write(100,10000) t, Ek, VAve, UAve, Etot
 
 10	end do
@@ -201,7 +214,7 @@
       enddo 
 
       write(*,*) 'Expectation of x, var',x1,x2 - x1**2 
-      write(*,*) 'Total Energy = ', tot, 'Hartree.' 
+      write(*,*) 'Total Energy = ', Etot  , 'cm-1.' 
 
       do i=1,ntraj
         write(120,10000) x(i),px(i)
@@ -267,9 +280,12 @@
 
       elseif(PES == 'pH2') then 
       
-		dr = 1.0d-4 
+        dr = 1.0d-4 
+            
         do i = 1, Ntraj 
-           r = x(i)
+
+           r = x(i) + re/a2bohr 
+
            v(i) = vpot(r) 
            dv(i) = (vpot(r+dr)-vpot(r))/dr    ! finite difference for force      
          enddo 
@@ -301,7 +317,7 @@
     
 	vpot = vpot + Vmin 
     
-    vpot = vpot / wavenum2hart
+    vpot = vpot / hartree_wavenumber 
           
 	end  
 	

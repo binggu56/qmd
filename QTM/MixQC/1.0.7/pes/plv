@@ -1,0 +1,9 @@
+set terminal postscript eps enhanced color 
+set size 0.6,0.6
+set output 'pot.eps'
+set xr [-3:3]
+set ylabel 'Long-range potential correction [k]'
+set xlabel 'Displacements of atom 1 in x direction'
+plot 'pot' u 1:2 w l lw 2 not
+
+

@@ -1,0 +1,20 @@
+Initial Conditions
+
+Ntraj   =  12800
+Ndim    =      3
+kmax    =   4000
+dt      =   0.0010
+fric    =   4.0000
+Mass    =   0.400000E+01  0.400000E+01  0.400000E+01
+
+Initial Wavepacket
+
+alpha0   =   4.0000  4.0000  4.0000
+center   =  -0.8000  0.0000  0.8000
+momentum =   0.0000  0.0000  0.0000
+
+interparticle distance =   1.2000
+
+Expectation value of x(2,ntraj) =  -0.002012
+Total Energy =   1.71371
+MISSION COMPLETE.

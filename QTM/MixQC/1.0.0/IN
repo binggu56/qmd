@@ -1,0 +1,4 @@
+5000          # number of trajectories
+1000,3d0         # time steps
+1d0          # initial guassian width
+

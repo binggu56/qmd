@@ -1,0 +1,4 @@
+rm qm.x
+make qm.x
+./qm.x
+

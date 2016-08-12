@@ -1,0 +1,62 @@
+Tue Oct 29 15:21:53 EDT 2013
+compile-time parameters:
+
+NREPS  =    430
+NATOMS =    180
+NATOM3 =    540
+NATOM6 =   1080
+NATOM7 =   1260
+NVBINS =  20000
+RATIO  = 2.0500
+NIP    =     56
+NPAIRS =  10080
+
+DEFINING potential energy grid parameters
+
+minimum R      =    2.00000 bohr
+R**2 bin size  =    0.05000 bohr**2
+
+using HFD-B(He) potential energy curve
+[R.A. Aziz et al., Mol. Phys. vol. 61, p. 1487 (1987)]
+
+READING crystal lattice from ltfile          
+
+supercell scaling factor computed from density =   0.10487673
+
+supercell edge lengths [bohr]         =   35.03380  33.71139  33.03021
+
+final lattice point [bohr]            =   33.08752  30.34020  27.52519
+
+nearest neighbor (NN) distance [bohr] =    6.74223
+
+supercell edge lengths [NN distances] =    5.19618   5.00004   4.89900
+
+atom 1 interacts with  56 other atoms
+
+total number of interacting pairs =  10080
+
+ R
+ nvpair2=        5040
+           1           2
+Initial Conditions
+
+Ntraj   =   3000
+Ndim    =    540
+kmax    =   1000
+dt      = 2.0000
+fric    = 0.0000
+Mass    =   0.734460E+04
+
+Initial Wavepacket
+
+alpha0   = 4.0000
+center   = 0.0000
+momentum = 0.0000
+
+Total Energy =   0.16264
+MISSION COMPLETE.
+
+real	936m38.330s
+user	546m54.100s
+sys	10m25.232s
+Wed Oct 30 06:58:31 EDT 2013

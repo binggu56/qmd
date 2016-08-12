@@ -1,0 +1,25 @@
+# This script executes the ELOC program to compute the total energy and
+# the expectation value of the potential energy.
+#
+# Note that the following four parameters must have the same value here
+# as in the job script that executes QSATS:
+#
+# density, atomic mass, alpha, and B
+#
+# These parameters are not saved in the snapshot file, so ELOC has no
+# means of checking that the parameters used here have the same values
+# as in the QSATS job script.
+#
+./eloc.exe <<! > eloc.out
+snapshot-file
+save-file
+lattice-file-180
+LOW
+200.0d0
+0.00461421d0
+7294.3d0
+0.13d0
+5.4d0
+1000000
+1000
+!

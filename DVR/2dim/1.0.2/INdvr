@@ -1,0 +1,6 @@
+0.01d0,10,10 \propagation dt, number of steps 
+10d0 0.04d0 \xy coupling in the potential, cutoff on density for plotting
+4.1d0,10d0, -0.736d0,-0.184d0,0d0,0d0 \wavepacket parameters 
+-6d0 -6d0 \lower left grid 
+1 1  \number am1, isotop for am2
+35 35  \number of R, r

@@ -1,0 +1,46 @@
+#$ -N qsats
+#$ -pe openmpi* 12
+#$ -l s_cpu=22:59:30
+#$ -q medium_phi
+#$ -cwd
+#
+# The preceding lines are job control commands interpreted by the queueing
+# system on the University of Tennessee cluster where the test run was
+# executed.  You will probably need to change these lines for the job to
+# run on your cluster.
+#
+# This job file runs the simulation whose results are given in the first
+# line of Table 2.
+#
+# First we do a short fresh run.  The mpirun command is used to execute
+# QSATS.
+#
+mpirun ./main.exe <<!
+snapshot-file               # name of the snapshot file
+save-file                   # name of the save file
+lattice-file-180            # name of the lattice file
+MEDIUM                      # debug level
+200.0d0                     # time step
+0.00461421d0                # density
+7294.3d0                    # atomic mass
+0.13d0                      # alpha parameter
+5.4d0                       # B parameter
+100000                      # total number of cycles
+1000                        # interval for recording snapshots
+!
+#
+# We follow the fresh run with a longer continuation run.
+#
+mpirun ./main.exe <<!
+snapshot-file
+save-file
+lattice-file-180
+MEDIUM
+200.0d0
+0.00461421d0
+7294.3d0
+0.13d0
+5.4d0
+1000000
+1000
+!

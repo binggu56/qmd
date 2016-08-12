@@ -1,0 +1,5 @@
+10000          # number of trajectories
+2	 	  # number of DoF
+16		# number of domains  
+200,0.025d0         # time steps
+

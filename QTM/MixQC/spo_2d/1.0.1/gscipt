@@ -1,0 +1,13 @@
+#
+
+set terminal gif animate delay 10 font "/Library/Fonts/Georgia.ttf, 11\" 
+set pm3d map
+set ticslevel 0.8
+set isosample 100,100
+set output "wavefunction.gif"
+set xrange [-3:3]
+set yrange [-3:3]
+set palette color
+splot "wf0" not
+splot "wft" not
+

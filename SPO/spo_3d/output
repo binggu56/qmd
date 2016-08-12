@@ -1,0 +1,68 @@
+10,11c10
+< 	real*8 ak2(ni,nj),rp(2,2)
+< 	complex*16 v(ni,nj,nth)
+---
+> 	real*8 ak2(ni,nj),rp(2,2),v(ni,nj,nth)
+21d19
+< 	common/iw/iwc,iws
+27,28d24
+< 	iwc=26
+< 	iws=27
+38,39d33
+<         open(26,file='corf')
+<         open(27,file='smat')
+53d46
+< 	read(5,*) di,wi
+161c154
+< 	parameter(ij=256,nth=175)
+---
+> 	parameter(ij=128,nth=175)
+181c174
+< 	parameter (ij=256,nth=175)
+---
+> 	parameter (ij=128,nth=175)
+183c176
+< 	complex*16 v(ij,ij,nth)
+---
+> 	real*8 v(ij,ij,nth)
+186d178
+< 	common/params/di,wi
+209,211d200
+<           vi=0d0
+<           ri=dsqrt(x**2+y**2)
+<           if(ri>wi) vi=vi+di*(ri-wi)**2
+221,224c210
+< !	  vi=0d0
+< !	  ri=dsqrt(x**2+y**2)
+< !	  if(ri>wi) vi=vi+di*(ri-wi)**2
+< 	  v(i,j,k)=vpot-im*vi
+---
+> 	  v(i,j,k)=vpot
+240c226
+< 	parameter (ij=256,nth=175)
+---
+> 	parameter (ij=128,nth=175)
+270c256
+< 	parameter(nij=256)
+---
+> 	parameter(nij=128)
+295c281
+< 	parameter(ij=256,nth=175,im=(0d0,1d0))
+---
+> 	parameter(ij=128,nth=175,im=(0d0,1d0))
+300c286
+< 	complex*16 v(ij,ij,nth)
+---
+> 	real*8 v(ij,ij,nth)
+396c382
+< 	parameter(nij=256) 	
+---
+> 	parameter(nij=128) 	
+408c394
+< 	parameter(ij=256,nth=175,rhd=3.0d0,roh=3.0d0,rod=3.0d0)
+---
+> 	parameter(ij=128,nth=175,rhd=3.0d0,roh=3.0d0,rod=3.0d0)
+452c438
+<         parameter(ij=256)
+---
+>         parameter(ij=128)

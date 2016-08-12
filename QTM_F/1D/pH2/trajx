@@ -1,0 +1,49 @@
+
+
+set term aqua
+plot "xoutput" u 1:2  not with lines lt 1 lw 2, \
+     "xoutput" u 1:3  not with lines lt 1 lw 2, \
+     "xoutput" u 1:4  not with lines lt 1 lw 2, \
+     "xoutput" u 1:5  not with lines lt 1 lw 2, \
+     "xoutput" u 1:6  not with lines lt 1 lw 2, \
+     "xoutput" u 1:7  not with lines lt 1 lw 2, \
+     "xoutput" u 1:8  not with lines lt 1 lw 2, \
+     "xoutput" u 1:9  not with lines lt 1 lw 2, \
+     "xoutput" u 1:10  not with lines lt 1 lw 2, \
+     "xoutput" u 1:11  not with lines lt 1 lw 2, \
+     "xoutput" u 1:12  not with lines lt 1 lw 2, \
+     "xoutput" u 1:13  not with lines lt 1 lw 2, \
+     "xoutput" u 1:14  not with lines lt 1 lw 2, \
+     "xoutput" u 1:15  not with lines lt 1 lw 2, \
+     "xoutput" u 1:16  not with lines lt 1 lw 2, \
+     "xoutput" u 1:17  not with lines lt 1 lw 2, \
+     "xoutput" u 1:18  not with lines lt 1 lw 2, \
+     "xoutput" u 1:19  not with lines lt 1 lw 2, \
+     "xoutput" u 1:20  not with lines lt 1 lw 2, \
+     "xoutput" u 1:21  not with lines lt 1 lw 2, \
+     "xoutput" u 1:22  not with lines lt 1 lw 2, \
+     "xoutput" u 1:23  not with lines lt 1 lw 2, \
+     "xoutput" u 1:24  not with lines lt 1 lw 2, \
+     "xoutput" u 1:25  not with lines lt 1 lw 2, \
+     "xoutput" u 1:26  not with lines lt 1 lw 2, \
+     "xoutput" u 1:27  not with lines lt 1 lw 2, \
+     "xoutput" u 1:28  not with lines lt 1 lw 2, \
+     "xoutput" u 1:29  not with lines lt 1 lw 2, \
+     "xoutput" u 1:30  not with lines lt 1 lw 2, \
+     "xoutput" u 1:31  not with lines lt 1 lw 2, \
+     "xoutput" u 1:32  not with lines lt 1 lw 2, \
+     "xoutput" u 1:33  not with lines lt 1 lw 2, \
+     "xoutput" u 1:34  not with lines lt 1 lw 2, \
+     "xoutput" u 1:35  not with lines lt 1 lw 2, \
+     "xoutput" u 1:36  not with lines lt 1 lw 2, \
+     "xoutput" u 1:37  not with lines lt 1 lw 2, \
+     "xoutput" u 1:38  not with lines lt 1 lw 2, \
+     "xoutput" u 1:39  not with lines lt 1 lw 2, \
+     "xoutput" u 1:40  not with lines lt 1 lw 2
+
+#set term postscript
+#set output "traj.ps"
+
+#replot
+
+

@@ -1,0 +1,53 @@
+This is the output of the Unix 'wc' command for each file distributed
+with QSATS, except manifest.txt and readme.txt.  The first entry is
+the number of lines, the second entry is the number of words, and the
+third entry is the number of characters in each file.
+
+   604   1589  14857 child.f
+   328    787   8266 cmrg.f
+    30    101    732 compile.csh
+  1445   4432  55142 continuation.out
+   429    995   9909 eloc.f
+    25    104    582 eloc.job
+   215   1229   7252 eloc.out
+   270    696   7036 even.f
+  1443   4427  55089 fresh.out
+   131    395   2890 input.f
+   184    544   6701 lattice-file-180
+   452   1348  16619 lattice-file-448
+   142    401   3517 main.f
+    46    187   1243 main.job
+   270    696   7037 odd.f
+   653   1836  15787 parent.f
+    63    176   1545 qsats.h
+   116    308   2777 rpsend.f
+    62    144   1307 rsetup.f
+    35    109    834 sizes.h
+    22     57    532 tstamp.master
+   121    315   2952 vinit.f
+
+
+This is the output of the Unix 'md5sum' command for these files.
+
+5e50eaba9edc3aeaf8b92b6023932eae  child.f
+b1ccc8ea774de79e0a4a1bf2f316bd98  cmrg.f
+e31c4a0672e03934d1e7b5b44011a495  compile.csh
+69b678985edf1a954625c7d66fc99fa4  continuation.out
+a97230e0f7b7e1d6fd8113853d6b0c30  eloc.f
+0e1ba760457be8fdbb6743379cd3aacc  eloc.job
+5e9cb8d33e6bdd5c14663f4e7f322b68  eloc.out
+404bcee5dad4115e7aa2030570e5b7e0  even.f
+55a5f1ca66ff7d1fdfa46f8d090e69af  fresh.out
+bc049d919d8a3add39137bf7f37a0885  input.f
+c3abf2fa117d05661ac67b6b5c771c23  lattice-file-180
+69d97a5dc47b93f386c707f845ad498d  lattice-file-448
+64e4ea1f4625600eac5181c8c1b5b5bf  main.f
+c5f9721a8b82e6f266e4e9e0ca0d3dbf  main.job
+25ae807a35b79efb3f459f7e60ef45a7  odd.f
+20e8dccb6439e8d5aaa03158262e60f5  parent.f
+4116689ee49b7d0178be4b18fe6f6817  qsats.h
+3a43b7c4f923a8c95f10ad15090c6c26  rpsend.f
+3ac505ab900ead60e91220546f1b7827  rsetup.f
+754c0f30351a5488f3e4dd7804926757  sizes.h
+6e37e38606e032ff3f53da688dad3d93  tstamp.master
+0ca48c37703e947e46fd5764ca3263dd  vinit.f

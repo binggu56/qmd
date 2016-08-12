@@ -1,0 +1,16 @@
+
+# Simple makefile
+
+  I77=gfortran
+#  I77=/opt/intel/fce/10.1.015/bin/ifort
+  Flags=  -lmkl_intel_thread -lmkl_solver -lmkl_lapack -lmkl_em64t -lmkl -lguide -lpthread
+  LIB= /opt/intel/mkl/10.0.1.014/lib/em64t
+
+.SUFFIXES:	.f .x .o .gx
+
+.f.o:
+	$(I77) -L$(LIB) $(Flags) -c $<
+.f.x:
+	$(I77) -L$(LIB)  -O0 $(Flags) $< -o $*.x
+.f.gx:
+	$(I77) -L$(LIB)  $(Flags) -g $< -o $*.gx

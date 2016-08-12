@@ -1,0 +1,4 @@
+#set autoscale
+set xr [-30:30]
+plot 'wft' u 1:2 with lines lw 2 ti 'wft'
+pause -1 

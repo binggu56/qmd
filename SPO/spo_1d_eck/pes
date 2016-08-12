@@ -1,0 +1,6 @@
+set term postscript eps enhanced color
+set output 'pes.eps'
+set yr [0:20]
+set xr [-20:20]
+plot 'pot' u 1:2 with lines lw 2
+

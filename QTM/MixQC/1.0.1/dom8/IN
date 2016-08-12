@@ -1,0 +1,5 @@
+1000          # number of trajectories
+2	 	  # number of DoF 
+150,0.025d0         # time steps
+1d0          # initial guassian width
+

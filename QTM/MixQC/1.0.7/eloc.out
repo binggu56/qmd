@@ -1,0 +1,215 @@
+this code was compiled on newton0
+compilation date = Sun Apr 17 09:44:52 EDT 2011
+
+compile-time parameters:
+
+NREPS  =    430
+NATOMS =    180
+NATOM3 =    540
+NATOM6 =   1080
+NATOM7 =   1260
+NVBINS =  20000
+RATIO  = 2.0500
+NIP    =     56
+NPAIRS =  10080
+
+REPEATING input parameters
+
+atom count    =    180
+replica count =    430
+
+tau             =    200.0000000 au time
+density         =      0.0046142 atoms per cubic bohr
+atomic mass     =   7294.3000000 electron masses
+alpha parameter =      0.1300000 bohr**(-2)
+B parameter     =      5.4000000 bohr
+
+number of simulation steps =  1000000
+snapshot interval          =     1000
+
+DEFINING potential energy grid parameters
+
+minimum R      =    3.00000 bohr
+R**2 bin size  =    0.05000 bohr**2
+
+using HFD-B(He) potential energy curve
+[R.A. Aziz et al., Mol. Phys. vol. 61, p. 1487 (1987)]
+
+READING crystal lattice from lattice-file-180
+
+supercell scaling factor computed from density =   0.10487673
+
+supercell edge lengths [bohr]         =   35.03380  33.71139  33.03021
+
+final lattice point [bohr]            =   33.08752  30.34020  27.52519
+
+nearest neighbor (NN) distance [bohr] =    6.74223
+
+supercell edge lengths [NN distances] =    5.19618   5.00004   4.89900
+
+atom 1 interacts with  56 other atoms
+
+total number of interacting pairs =  10080
+
+number of snapshots =   1000
+
+replica   1 VAVG =  -30.55987 Kelvin
+replica   1 V SD =    2.31277 Kelvin
+replica   1 EAVG =   -3.85592 Kelvin
+replica   1 E SD =    0.87725 Kelvin
+replica  12 VAVG =  -31.14347 Kelvin
+replica  12 V SD =    2.20079 Kelvin
+replica  12 EAVG =   -4.37688 Kelvin
+replica  12 E SD =    0.80992 Kelvin
+replica  23 VAVG =  -31.47411 Kelvin
+replica  23 V SD =    2.08936 Kelvin
+replica  23 EAVG =   -4.57752 Kelvin
+replica  23 E SD =    0.77093 Kelvin
+replica  34 VAVG =  -31.45870 Kelvin
+replica  34 V SD =    2.12459 Kelvin
+replica  34 EAVG =   -4.71884 Kelvin
+replica  34 E SD =    0.80070 Kelvin
+replica  45 VAVG =  -31.66620 Kelvin
+replica  45 V SD =    2.13987 Kelvin
+replica  45 EAVG =   -4.80018 Kelvin
+replica  45 E SD =    0.78708 Kelvin
+replica  56 VAVG =  -31.53635 Kelvin
+replica  56 V SD =    2.16380 Kelvin
+replica  56 EAVG =   -4.82183 Kelvin
+replica  56 E SD =    0.80249 Kelvin
+replica  67 VAVG =  -31.62219 Kelvin
+replica  67 V SD =    2.14036 Kelvin
+replica  67 EAVG =   -4.92271 Kelvin
+replica  67 E SD =    0.79027 Kelvin
+replica  78 VAVG =  -31.51881 Kelvin
+replica  78 V SD =    2.22920 Kelvin
+replica  78 EAVG =   -4.91464 Kelvin
+replica  78 E SD =    0.81979 Kelvin
+replica  89 VAVG =  -31.61039 Kelvin
+replica  89 V SD =    2.16811 Kelvin
+replica  89 EAVG =   -4.91442 Kelvin
+replica  89 E SD =    0.79733 Kelvin
+replica 100 VAVG =  -31.60109 Kelvin
+replica 100 V SD =    2.21664 Kelvin
+replica 100 EAVG =   -4.86883 Kelvin
+replica 100 E SD =    0.78955 Kelvin
+replica 111 VAVG =  -31.63383 Kelvin
+replica 111 V SD =    2.24647 Kelvin
+replica 111 EAVG =   -4.91122 Kelvin
+replica 111 E SD =    0.84313 Kelvin
+replica 122 VAVG =  -31.63562 Kelvin
+replica 122 V SD =    2.18653 Kelvin
+replica 122 EAVG =   -4.95381 Kelvin
+replica 122 E SD =    0.78685 Kelvin
+replica 133 VAVG =  -31.58147 Kelvin
+replica 133 V SD =    2.15059 Kelvin
+replica 133 EAVG =   -4.95136 Kelvin
+replica 133 E SD =    0.83921 Kelvin
+replica 144 VAVG =  -31.67557 Kelvin
+replica 144 V SD =    2.14142 Kelvin
+replica 144 EAVG =   -4.95913 Kelvin
+replica 144 E SD =    0.80395 Kelvin
+replica 155 VAVG =  -31.73204 Kelvin
+replica 155 V SD =    2.06154 Kelvin
+replica 155 EAVG =   -4.97133 Kelvin
+replica 155 E SD =    0.79092 Kelvin
+replica 166 VAVG =  -31.62897 Kelvin
+replica 166 V SD =    2.25446 Kelvin
+replica 166 EAVG =   -4.97391 Kelvin
+replica 166 E SD =    0.80307 Kelvin
+replica 177 VAVG =  -31.65549 Kelvin
+replica 177 V SD =    2.22207 Kelvin
+replica 177 EAVG =   -4.99597 Kelvin
+replica 177 E SD =    0.78542 Kelvin
+replica 188 VAVG =  -31.73899 Kelvin
+replica 188 V SD =    2.04217 Kelvin
+replica 188 EAVG =   -4.96785 Kelvin
+replica 188 E SD =    0.77141 Kelvin
+replica 199 VAVG =  -31.69083 Kelvin
+replica 199 V SD =    2.12487 Kelvin
+replica 199 EAVG =   -4.99839 Kelvin
+replica 199 E SD =    0.76035 Kelvin
+replica 210 VAVG =  -31.79981 Kelvin
+replica 210 V SD =    2.18871 Kelvin
+replica 210 EAVG =   -4.99424 Kelvin
+replica 210 E SD =    0.78215 Kelvin
+replica 221 VAVG =  -31.75514 Kelvin
+replica 221 V SD =    2.18139 Kelvin
+replica 221 EAVG =   -4.96246 Kelvin
+replica 221 E SD =    0.78381 Kelvin
+replica 232 VAVG =  -31.82417 Kelvin
+replica 232 V SD =    2.09467 Kelvin
+replica 232 EAVG =   -5.05137 Kelvin
+replica 232 E SD =    0.79264 Kelvin
+replica 243 VAVG =  -31.66432 Kelvin
+replica 243 V SD =    2.17442 Kelvin
+replica 243 EAVG =   -5.03051 Kelvin
+replica 243 E SD =    0.88088 Kelvin
+replica 254 VAVG =  -31.74033 Kelvin
+replica 254 V SD =    2.17168 Kelvin
+replica 254 EAVG =   -5.02091 Kelvin
+replica 254 E SD =    0.80885 Kelvin
+replica 265 VAVG =  -31.65701 Kelvin
+replica 265 V SD =    2.18443 Kelvin
+replica 265 EAVG =   -5.01455 Kelvin
+replica 265 E SD =    0.84294 Kelvin
+replica 276 VAVG =  -31.63711 Kelvin
+replica 276 V SD =    2.15044 Kelvin
+replica 276 EAVG =   -5.00122 Kelvin
+replica 276 E SD =    0.81789 Kelvin
+replica 287 VAVG =  -31.75879 Kelvin
+replica 287 V SD =    2.18685 Kelvin
+replica 287 EAVG =   -5.03828 Kelvin
+replica 287 E SD =    0.77665 Kelvin
+replica 298 VAVG =  -31.66429 Kelvin
+replica 298 V SD =    2.09250 Kelvin
+replica 298 EAVG =   -5.01206 Kelvin
+replica 298 E SD =    0.74801 Kelvin
+replica 309 VAVG =  -31.60641 Kelvin
+replica 309 V SD =    2.16591 Kelvin
+replica 309 EAVG =   -5.00877 Kelvin
+replica 309 E SD =    0.82295 Kelvin
+replica 320 VAVG =  -31.58301 Kelvin
+replica 320 V SD =    2.20439 Kelvin
+replica 320 EAVG =   -4.99732 Kelvin
+replica 320 E SD =    0.81886 Kelvin
+replica 331 VAVG =  -31.58949 Kelvin
+replica 331 V SD =    2.30339 Kelvin
+replica 331 EAVG =   -4.99266 Kelvin
+replica 331 E SD =    0.83162 Kelvin
+replica 342 VAVG =  -31.62719 Kelvin
+replica 342 V SD =    2.18878 Kelvin
+replica 342 EAVG =   -4.93756 Kelvin
+replica 342 E SD =    0.80861 Kelvin
+replica 353 VAVG =  -31.67251 Kelvin
+replica 353 V SD =    2.18086 Kelvin
+replica 353 EAVG =   -4.94740 Kelvin
+replica 353 E SD =    0.80817 Kelvin
+replica 364 VAVG =  -31.69539 Kelvin
+replica 364 V SD =    2.22496 Kelvin
+replica 364 EAVG =   -4.91570 Kelvin
+replica 364 E SD =    0.80220 Kelvin
+replica 375 VAVG =  -31.48412 Kelvin
+replica 375 V SD =    2.30699 Kelvin
+replica 375 EAVG =   -4.86661 Kelvin
+replica 375 E SD =    0.77265 Kelvin
+replica 386 VAVG =  -31.64272 Kelvin
+replica 386 V SD =    2.17539 Kelvin
+replica 386 EAVG =   -4.82487 Kelvin
+replica 386 E SD =    0.80867 Kelvin
+replica 397 VAVG =  -31.51962 Kelvin
+replica 397 V SD =    2.16263 Kelvin
+replica 397 EAVG =   -4.74887 Kelvin
+replica 397 E SD =    0.85048 Kelvin
+replica 408 VAVG =  -31.46713 Kelvin
+replica 408 V SD =    2.15587 Kelvin
+replica 408 EAVG =   -4.66026 Kelvin
+replica 408 E SD =    0.85583 Kelvin
+replica 419 VAVG =  -31.22868 Kelvin
+replica 419 V SD =    2.19356 Kelvin
+replica 419 EAVG =   -4.44057 Kelvin
+replica 419 E SD =    0.80059 Kelvin
+replica 430 VAVG =  -30.67129 Kelvin
+replica 430 V SD =    2.32462 Kelvin
+replica 430 EAVG =   -3.89354 Kelvin
+replica 430 E SD =    0.88727 Kelvin

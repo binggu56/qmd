@@ -1,0 +1,7 @@
+4000        # number of trajectories
+1,0.5d0   # time steps
+1837d0      # mass
+5           # idum1 & idum2
+0.25d0         # constants for initial wavefunction
+2.0d0,0d0     # center for the wavepacket
+0.0008d0	# friction constant

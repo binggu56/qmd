@@ -1,0 +1,4 @@
+10000          # number of trajectories
+2	 	  # number of DoF 
+200,0.025d0         # time steps
+

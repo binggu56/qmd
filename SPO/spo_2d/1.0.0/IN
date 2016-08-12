@@ -1,0 +1,12 @@
+0.01d0,2000,1          \time step, number of step
+1d0,1d0                \mass
+1d0,1d0              \wavepacket width ax,ay
+-2d0,-2d0              \initial wavepacket center qx0,qy0
+0d0,0d0                \initial momentum
+0d0,0d0 	        \abs potential di, wi
+-6d0,-6d0               \minimum values of x,y
+6d0,6d0               \maximum values for x,y
+1d0,1d0		   	\wx,wy
+1d0	       		\corr
+1d0                     \hbar
+3                        \ipot

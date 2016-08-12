@@ -1,0 +1,3 @@
+3000         # number of trajectories
+5000,2         # time steps
+0.01d0       # friction 

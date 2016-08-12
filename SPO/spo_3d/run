@@ -1,0 +1,8 @@
+#!/bin/csh
+set dir1=/home/bing/3d_spo
+if (-e $1) rm -r  $1
+mkdir $1
+cp INq qm.x $1
+cd $1
+time ./qm.x >& junk &
+#time qsub $dir1/pople >& junk &

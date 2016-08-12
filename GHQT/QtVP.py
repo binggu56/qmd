@@ -6,7 +6,7 @@ import numpy as np
 import math
 import sys 
 
-Ntraj = 16000 
+Ntraj = 1600 
 print('Number of trajectories = {} \n'.format(Ntraj))
 
 dt = 0.004
@@ -18,7 +18,7 @@ b = alpha.imag
 
 g = 0.0 # anharmonic constant in potential 
 
-Nt = input('Time interval = {} \n How many time steps? '.format(dt))
+Nt = int(input('Time interval = {} \n How many time steps? '.format(dt)))
 x = np.random.randn(Ntraj)/np.sqrt(2.0*alpha.real) + x0 
 p = np.zeros(Ntraj)
 w = np.array([1./Ntraj]*Ntraj)
@@ -109,8 +109,6 @@ def qpot(x,w,xAve,xVar):
     c0 = 1.0 
     c1 = b1/s11
     
-    print 'coeff',c0,c1
-
     P = c0*(-alpha*(x-xAve)) + c1*(-alpha + alpha**2*(x-xAve)**2)
     dP = - alpha*c0 + c1 * alpha**2 * 2.0*(x-xAve) 
     ddP = 2.0 * c1 * alpha**2
@@ -299,7 +297,7 @@ def Hermite(x):
             Hn = 2.0 * x * H[n-1] - 2.0*(n-1) * H[n-2]
             H.append(Hn)
     
-    for n in xrange(Nb):
+    for n in range(Nb):
         H[n] = H[n]*cons[n] 
 
     return H
@@ -421,9 +419,9 @@ def SaveWf(alpha, pAve, S,c,xAve,xVar,fname='wft.dat'):
     #phi2 = Hermite(z,2) * phi0 
     #phi2 = (4. * z*z - 2.) / 4. / np.sqrt(2.) * phi0 
 
-    for i in xrange(len(x)):
+    for i in range(len(x)):
         wf = 0.+0.j 
-        for j in xrange(Nb):
+        for j in range(Nb):
             wf += c[j]*basis[j][i] 
         f.write('{} {} {} \n'.format(x[i], wf.real,wf.imag))
 
@@ -456,7 +454,7 @@ print('Initial momentum {}'.format(pAve))
 
 #ak = Hessian(xAve)
 #Nb = 10 # number of basis function 
-Nb = input('Please enter number of basis function \n ')
+Nb = int(input('Please enter number of basis function \n '))
 
 c = np.zeros(Nb,dtype=complex) # initial expansion coeffs
 c[0] = 1.0
