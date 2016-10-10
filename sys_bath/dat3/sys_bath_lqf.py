@@ -206,7 +206,28 @@ def Vy(y):
     v0 = y**2/2.0
     dv = y
     return v0,dv 
+
+
+def LQF(x,w):
     
+    xAve = np.dot(x,w) 
+    xSqdAve = np.dot(x*x,w) 
+    
+    var = (xSqdAve - xAve**2)
+
+    a = 1. / 2. / var 
+    
+    r = - a * (x-xAve) 
+    
+    dr = - a 
+
+    uAve =  (np.dot(r**2,w))/2./amy 
+                
+    du = -1./amy * (r*dr)
+
+    return r, du, uAve
+
+
 @numba.autojit
 def qpot(x,p,r,w):
 
@@ -273,7 +294,7 @@ def qpot(x,p,r,w):
 # for DOF y : an ensemble of trajectories 
 # for DOF x : for each trajectory associate a complex vector c of dimension M 
    
-Ntraj = 1024*2
+Ntraj = 1024
 M = 8
 ax = 1.0 # width of the GH basis 
 ay0 = 4.0   
@@ -301,7 +322,8 @@ print('trace of density matrix',np.vdot(c[0,:], c[0,:]))
    
 y = np.random.randn(Ntraj)     
         
-y = y / np.sqrt(2.0 * ay0) + y0 
+y = y / np.sqrt(2.0 * ay0) + y0
+print('trajectory range {}, {}'.format(min(y),max(y)))
 py = np.zeros(Ntraj)
 ry = - ay0 * (y-y0) 
 
@@ -351,11 +373,13 @@ def fit_c(c,y):
     for j in range(M):
 
         z = c[:,j]
-        p = np.polyfit(y,z,2)
-        
-        for k in range(Ntraj):
-            dc[k,j] = 2.0 * p[0] * y[k] + p[1]
-            ddc[k,j] = 2.0 * p[0] 
+        pars = np.polyfit(y,z,3)
+        p0 = np.poly1d(pars)
+        p1 = np.polyder(p0)
+        p2 = np.polyder(p1)
+#for k in range(Ntraj):
+        dc[:,j] = p1(y)
+        ddc[:,j] = p2(y)
             
     return dc, ddc
     
@@ -364,7 +388,7 @@ def prop_c(H,c,y,ry,py):
     
     dc, ddc = fit_c(c,y)
     
-    eps = 0.25e0 # nonlinear coupling Vint = eps*x**2*y
+    eps = 0.20 # nonlinear coupling Vint = eps*x**2*y
     
     for k in range(Ntraj):
         
@@ -403,27 +427,22 @@ fc = open('c.dat','w')
 fx = open('xAve.dat','w')
 
 v0, dv = Vy(y)
-Eu,fq,fr = qpot(y,py,ry,w)
+ry, du, Eu = LQF(y,w)
 
 for k in range(Nt):
     
     t = t + dt 
 
-    py += (- dv + fq) * dt2 - fric_cons * py * dt2   
-    ry += fr * dt2
+    py += (- dv - du) * dt2 - fric_cons * py * dt2   
     
     y +=  py*dt/amy
 
     # force field 
-    Eu, fq, fr = qpot(y,py,ry,w)
-    if Eu < 0:
-        print('Error: U = {} should not be negative. \n'.format(Eu))
-        #sys.exit()
+    ry, du, Eu = LQF(y,w)
         
     v0, dv = Vy(y)
 
-    py += (- dv + fq) * dt2 - fric_cons * py * dt2 
-    ry += fr * dt2 
+    py += (- dv - du) * dt2 - fric_cons * py * dt2 
     
     # update c 
     
@@ -439,7 +458,7 @@ for k in range(Nt):
     fx.write('{} {} \n'.format(t,x_ave))
            
     f.write(fmt.format(t,*y[0:nout]))
-    fc.write('{} {} {} {} {} \n'.format(t, *c[0,:]))
+
     
     Ek = np.dot(py*py,w)/2./amy  
     Ev = np.dot(v0,w) 
@@ -447,9 +466,13 @@ for k in range(Nt):
     Etot = Ek + Ev + Eu
     
     fe.write('{} {} {} {} {} \n'.format(t,Ek,Ev,Eu,Etot))
-    
-    if k == Nt-1:
-        print('The total energy = {} Hartree. \n'.format(Etot))
+
+
+print('The total energy = {} Hartree. \n'.format(Etot))
+
+# print trajectory and coefficients 
+for k in range(Ntraj):
+    fc.write( '{} {} \n'.format(y[k], c[k,0]))
 
 fe.close()
 f.close() 

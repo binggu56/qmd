@@ -295,7 +295,6 @@ for i in range(M):
     c[:,i] = np.exp(-0.5 * np.abs(z)**2) * z**i / np.sqrt(math.factorial(i))
 
 print('initial occupation \n',c[0,:])
-print('trace of density matrix',np.vdot(c[0,:], c[0,:]))
 # ---------------------------------
 # initial conditions for QTs     
    

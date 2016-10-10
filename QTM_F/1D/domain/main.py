@@ -4,16 +4,27 @@ Created on Thu Jun  2 09:35:39 2016
 
 @author: bing
 
-Double well ground state computation with quantum trajectories 
-Nonlinear curve fitting with Pade approximants 
+Double well ground state computation with quantum trajectories
+Nonclassical momentum is approximated using subspaces 
+
+Several questions to answer: 
+
+1. nonlinearity can be introduced into the approximation by domain function 
+2. subspaces can improve the accuracy of results 
+3. in particular, it should be the best way to approximate double-well problems 
+ 
+# alternatively - Nonlinear curve fitting with Pade approximants 
 
 """
 
 import numpy as np
-import scipy  
+#import scipy  
 import numba 
 import sys
+
+import constants as paras 
 from vpot import derivs
+#from fit import linear_fit_domain_nor 
 
 from scipy.optimize import curve_fit
 
@@ -24,10 +35,7 @@ hartree_wavenumber = 219474.63
 #hartree_wavenumber = scipy.constants.value(u'hartree-inverse meter relationship') / 1e2 
 
 
-Vmin = -24.2288 
 
-b = np.array([-6.631e-02, 1.346e-01, -3.300e-02, 6e0, -1.4e01, -1.193e02, 2.290e02, \
-            1.110e03, -1.850e03, -3.5e03, 6.0e03])
 
     
 @numba.autojit
@@ -142,12 +150,6 @@ def qpot_linear(x,p,r,w):
             predefined functional form      
     """
     
-    #tau = (max(xdata) - min(xdata))/(max(x) - min(x))
-    #if tau > 0.6:
-    #    pass 
-    #else: 
-    #    print('Data points are not sampled well.'
-
     Nb = 4 
     S = np.zeros((Nb,Nb))
     
@@ -257,73 +259,19 @@ def sym(V):
             V[j,i] = V[i,j] 
     return V 
 
-@numba.autojit 
-def vpot(r):
-    
-    re = 3.47005
-    De = 24.2288 
-	
-    r = r * bohr_angstrom 
-    
-    beta_inf = np.log(2.0 * De / u_LR(re)) 
-    
-    s = 0.0        
-    for j in range(11):
-        s += b[j] * y_ref(r,1)**j
-    
-      
-    beta = y_ref(r,6) * beta_inf + (1.0 - y_ref(r,6))  * s  
-    
-    vpot = De * (1.0 - u_LR(r)/u_LR(re) * np.exp(- beta * y_eq(r,6)))**2
-    
-    vpot = vpot + Vmin 
-    
-    vpot = vpot / hartree_wavenumber 
-    
-    return vpot 
-	
-
-def y_eq(r,n):
-    
-    re = 3.47005
-     
-    y_eq = (r**n - re**n)/(r**n + re**n) 
- 
-    return y_eq  
-    
-def y_ref(r,n):
-    
-    r_ref = 4.60
-     
-    z = (r**n - r_ref**n)/(r**n + r_ref**n)     
-
-    return z
-    
-def u_LR(r):
-    
-    C6 = 5.820364e04
-    C8 = 2.87052154e05 
-    C10 = 1.80757343e06 
-    
-    z = damp(r,6) * C6/r**6 + damp(r,8) * C8/r**8 + damp(r,10) * C10 / r**10 
-      
-    return z
-    
-
-
-	
-def damp(r,n):
-    
-   den = 1.10 
-		 
-   z = (1.0 - np.exp(-3.30 * den * r / n - 0.423 * (den * r)**2/np.sqrt(float(n))))**(n-1) 
-   
-   return z 
-
 def trial(x,a):
-    return a[0] + a[1] * x 
+    """
+    trial function for each domain 
+    """
+    if len(a) != 2:
+        sys.exit('length of coefficients does not match linear function')
+        
+    return a[0] + a[1]*x
 
-def linear_fit_domain(x, r, L=3):
+def sech(x):
+    return 1.0/np.cosh(x)
+    
+def linear_fit_domain(x, w, L=3):
     """
     linear fit with spacial domains 
     
@@ -331,114 +279,88 @@ def linear_fit_domain(x, r, L=3):
         L : number of domains 
     """
     # define domain functions 
-    d = 8.0
-    xdom = [-0.5, 0.5]
-    domFunc = []
+    d = 2.0
+    xdom = [-0.6, 0.6]
+    domFunc = [] 
     dDomFunc = [] 
-    domFunc.append(0.5 * (1. - np.tanh(d * (x - xdom[0])))) 
-    dDomFunc.append( 0.5 * -d * (np.sech(d * (x-xdom[0])))**2 ) 
+    ddDomFunc = [] 
+
+    # define the first domain function 
+    
+    x0 = xdom[0] 
+
+    func = 0.5 * (1. - np.tanh(d * (x - x0)))
+
+    domFunc.append(func)   
+    dDomFunc.append( - 0.5 * d * sech(d * (x-x0))**2 ) 
+    ddDomFunc.append( d**2 * np.tanh(d*(x-x0)) * sech(d*(x-x0))**2)
+
 
     for i in range(L-2):
-        domFunc.append(0.5 * (np.tanh(d*(x - xdom[i])) - np.tanh(d * (x - xdom[i+1]))))
-        dDomFunc.append(0.5 * (d * np.sech(d*(x-xdom[i]))**2 - d * np.sech(d * (x-xdom[i+1])**2)))
+        
+        xl, xr = xdom[i], xdom[i+1] 
+        
+        domFunc.append(0.5 * (np.tanh(d*(x - xl)) - np.tanh(d * (x - xr))))
+        dDomFunc.append(0.5 * ( d * sech( d * (x-xl))**2 - d * sech(d * (x-xr))**2) )
+        ddDomFunc.append(- d**2 * (np.tanh(d*(x-xl)) * sech(d*(x-xl))**2 - np.tanh(d*(x-xr)) * sech(d*(x-xr))**2) )
     
+
     lastDom = 1. - sum(domFunc)    
     dLastDom = - sum(dDomFunc)
+    ddLastDom = - sum(ddDomFunc)
 
     domFunc.append(lastDom)
     dDomFunc.append(dLastDom)
+    ddDomFunc.append(ddLastDom)
     
-    f = np.zeros(len(x))
-    df = np.zeros(len(x))
-       
+    if len(domFunc) != L:
+        print('number of domain funcions',len(domFunc))
+        sys.exit('the number of domains does not match domain functions')
+    
+
+    U  = np.zeros(len(x))
+    fq = np.zeros(len(x)) 
+      
     Nb = 2 # number of basis 
     
     for k in range(L):
         
-        S = np.zeros((Nb,Nb))
-        S[0,0] = sum(domFunc[k])
-        S[0,1] = S[1,0] = np.dot(x,domFunc[k])
-        S[1,1] = np.dot(x**2, domFunc[k])
-    
-        b = np.zeros(Nb)
-        b[0] = np.dot(r,domFunc[k])
-        b[1] = np.dot(r*x, domFunc[k])
-    
-        a = np.linalg.solve(S,b)
         
-        f += trial(x,a) * domFunc[k]
-        df += a[1] * domFunc[k] + trial(x,a) * dDomFunc[k] 
-
-def linear_fit_domain_nor(x, w, L=3):
-    """
-    linear fit with spacial domains without r 
-    
-    input: 
-        L : number of domains 
-    """
-    # define domain functions 
-    d = 8.0
-    #xdom = [-1.0, 1.0]
-    xdom = [0.0] 
-    
-    if abs(len(xdom)+1-L) > 0:
-        print('Error : size of xdom does not match number of domains.')
-
-    domFunc = []
-    dDomFunc = [] 
-    domFunc.append(0.5 * (1. - np.tanh(d * (x - xdom[0])))) 
-    dDomFunc.append( 0.5 * -d * 1./(np.cosh(d * (x-xdom[0])))**2 ) 
-    ddDomFunc.append( d**2 *  )
-    if L > 2:
-        for i in range(L-2):
-            domFunc.append(0.5 * (np.tanh(d*(x - xdom[i])) - np.tanh(d * (x - xdom[i+1]))))
-            dDomFunc.append(0.5 * (d / np.cosh(d*(x-xdom[i]))**2 - d / np.cosh(d * (x-xdom[i+1])**2)))
-    
-    lastDom = 1. - sum(domFunc)    
-    dLastDom = - sum(dDomFunc)
-
-    domFunc.append(lastDom)
-    dDomFunc.append(dLastDom)
-    
-    u = r = dr = ddr = np.zeros(len(x))
-    #df = np.zeros(len(x))
-    #ddf = np.zeros(len(x))
-       
-    Nb = 2 # number of basis 
-    
-    for k in range(L):
         
         S = np.zeros((Nb,Nb))
+        
         S[0,0] = np.dot(domFunc[k],w)
+
+        print('number of trajectories in {} domain = {} \n'.format(k,S[0,0]))
+        
         S[0,1] = S[1,0] = np.dot(x * domFunc[k], w)
         S[1,1] = np.dot(x**2 * domFunc[k], w)
     
         b = np.zeros(Nb)
-        b[0] = np.dot(dDomFunc[k],  w)
-        b[1] = np.dot(x *  dDomFunc[k] + domFunc[k], w)
-
-        b = - 0.5 * b   
+        b[0] = np.dot(dDomFunc[k], w)
+        b[1] = np.dot(domFunc[k] + x*dDomFunc[k], w)
     
-        a = np.linalg.solve(S,b)
-
-        print('fitting coefficients ',a)
+        b = - 0.5*b
         
-        r = trial(x,a) 
-        dr = a[1]  
-        ul = r**r + dr 
-        dul = 2. * r * dr 
-        u += - 1./2./am * (ul * domFunc[k] + r * dDomFunc[k]) 
-        fq += 1./2./am * (ul * dDomFunc[k] + dul * domFunc[k] + dr * dDomFunc[k] \
-              r * ddDomFunc[k])
-
-    Eu =  np.dot(u, w) 
-
+        a = np.linalg.solve(S,b)
+        
+        rk = trial(x,a)
+        
+        U += (rk**2 + a[1]) * domFunc[k] + rk * dDomFunc[k] 
+        fq += 2.0 * rk * a[1] * domFunc[k] + (rk**2 + 2.0 * a[1]) * dDomFunc[k] + rk * dDomFunc[k]
+        
+    fq = fq/2.0/am 
+    U = - U/2.0/am 
+    
+    # expectation value of quantum potential 
+    Eu = np.dot(U,w)
+    
     return Eu, fq 
 
 # initialization    
-Ntraj = 2048 * 2  
-a0 = 1.0 
-x0 = -0. 
+Ntraj = 2048*4 
+a0 = 2.0 
+x0 = 0. 
 
 
 x = np.random.randn(Ntraj) 
@@ -452,12 +374,16 @@ x = np.random.randn(Ntraj)
         
 x = x / np.sqrt(2.0 * a0) + x0 
 
+print('initial configuration ranage {} {} \n'.format(min(x),max(x)))
+
 p = np.zeros(Ntraj)
 r = - a0 * (x-x0) 
 
 w = np.array([1./Ntraj]*Ntraj)
-am = 1.0  
-Nt = 500  
+am = paras.am 
+print(' mass = {}'.format(am)) 
+
+Nt = 1500 
 dt = 0.002
 
 dt2 = dt/2.0 
@@ -477,7 +403,7 @@ nout = 20       # number of trajectories to print
 fmt =  ' {}' * (nout+1)  + '\n'  
 Eu = 0.  
 
-L = 2 #  number of domains 
+L = 3 #  number of domains 
 
 Ndim = 1        # dimensionality of the system  
 fric_cons = 2.0     # friction constant  
@@ -485,13 +411,17 @@ fric_cons = 2.0     # friction constant
 v0, dv = derivs(x)
 print('Initial potential energy = {} Hartree.'.format(np.dot(v0,w)))
 
-Eu,fq = linear_fit_domain_nor(x,w,L=L)
+Eu,fq = linear_fit_domain(x,w,L=L)
 
-print('Start propagate the trajectories ...')
+print('Start propagate the trajectories ...\n')
 
 for k in range(Nt):
     t = t + dt 
 
+    #print('force field')
+    #print('classical force',-dv)
+    #print('quantum force',fq)
+    
     p += (- dv + fq) * dt2 - fric_cons * p * dt2   
     #r += fr * dt2
     
@@ -499,13 +429,14 @@ for k in range(Nt):
 
     # force field 
     
-    Eu, fq = linear_fit_domain_nor(x,w,L=L)
+    Eu, fq = linear_fit_domain(x,w,L=L)
 
     if Eu < 0:
-        print('Error: U = {} should not be negative. \n'.format(Eu))
+        pass 
+# print('Error: U = {} should not be negative. \n'.format(Eu))
         #print('MSE = {}.'.format(rMSE))
                 
-        sys.exit()
+# sys.exit()
         
     v0, dv = derivs(x)
 
@@ -520,8 +451,11 @@ for k in range(Nt):
     fe.write('{} {} {} {} {} \n'.format(t,Ek,Ev,Eu,Etot))
     f_ave.write('{} {} \n'.format(t, np.dot(x,w)))
     
-    if k == Nt-1:
-        print('The total energy = {} Hartree. \n'.format(Etot))
+print('Finish propagation ... \n')
+print('The kinetic energy = {} Hartree \n'.format(Ek))
+print('The potential energy = {} Hartree \n'.format(Ev))
+print('Quantum potential energy = {} Hartree \n'.format(Eu))
+print('The total energy = {} Hartree. \n'.format(Etot))
 
 fe.close()
 f.close() 

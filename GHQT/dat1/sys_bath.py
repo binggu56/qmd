@@ -8,7 +8,7 @@ import numpy as np
 #import scipy  
 import numba 
 import sys 
-import math 
+
 
 
 
@@ -274,7 +274,7 @@ def qpot(x,p,r,w):
 # for DOF x : for each trajectory associate a complex vector c of dimension M 
    
 Ntraj = 1024*2
-M = 8
+M = 16  
 ax = 1.0 # width of the GH basis 
 ay0 = 4.0   
 y0 = 0.0  
@@ -282,20 +282,12 @@ y0 = 0.0
 # initial conditions for c 
 c = np.zeros((Ntraj,M),dtype=np.complex128)
 
-# mixture of ground and first excited state
+c[:,0] = 1.0/np.sqrt(2.0)+0j
+c[:,1] = 1.0/np.sqrt(2.0)+0j
+for i in range(2,M):
+    c[:,i] = 0.0+0.0j
 
-#c[:,0] = 1.0/np.sqrt(2.0)+0j
-#c[:,1] = 1.0/np.sqrt(2.0)+0j
-#for i in range(2,M):
-#    c[:,i] = 0.0+0.0j
 
-# coherent state 
-z = 1.0/np.sqrt(2.0)
-for i in range(M):
-    c[:,i] = np.exp(-0.5 * np.abs(z)**2) * z**i / np.sqrt(math.factorial(i))
-
-print('initial occupation \n',c[0,:])
-print('trace of density matrix',np.vdot(c[0,:], c[0,:]))
 # ---------------------------------
 # initial conditions for QTs     
    
@@ -321,7 +313,7 @@ Ndim = 1           # dimensionality of the bath
 fric_cons = 0.0      # friction constant  
 
 
-Nt = 2**12
+Nt = 2**13
 dt = 1.0/2.0**9
 dt2 = dt/2.0 
 t = 0.0 
@@ -330,7 +322,7 @@ print('time range for propagation is [0,{}]'.format(Nt*dt))
 print('timestep  = {}'.format(dt))
     
 # construct the Hamiltonian matrix for anharmonic oscilator 
-g = 0.0 
+g = 0.10 
 V = 0.5 * M2mat(ax,M) + g/4.0 * M4mat(ax,M)
 K = Kmat(ax,0.0,M)
 H = K+V
@@ -351,11 +343,11 @@ def fit_c(c,y):
     for j in range(M):
 
         z = c[:,j]
-        p = np.polyfit(y,z,2)
+        p = np.polyfit(y,z,3)
         
         for k in range(Ntraj):
-            dc[k,j] = 2.0 * p[0] * y[k] + p[1]
-            ddc[k,j] = 2.0 * p[0] 
+            dc[k,j] = 3.0 * p[0] * y[k]**2 + p[1] * 2.0 * y[k] + p[2] 
+            ddc[k,j] = 6.0 * p[0] * y[k] + 2.0*p[1]  
             
     return dc, ddc
     
@@ -364,12 +356,12 @@ def prop_c(H,c,y,ry,py):
     
     dc, ddc = fit_c(c,y)
     
-    eps = 0.25e0 # nonlinear coupling Vint = eps*x**2*y
+    eps = 0.5e0 # bilinear coupling Vint = eps*x*y
     
     for k in range(Ntraj):
         
         Vp = eps * y[k] * M2mat(ax,M) 
-        tmp = (H + Vp).dot(c[k,:]) - ddc[k,:]/2.0/amy - dc[k,:] * (ry[k] + 1j*py[k])/amy 
+        tmp = (H+Vp).dot(c[k,:]) - ddc[k,:]/2.0/amy - dc[k,:] * (ry[k] + 1j*py[k])/amy 
         tmp *= -1j
 
         c[k,:] += tmp * dt 
@@ -387,7 +379,7 @@ def xAve(c,y,w):
     for k in range(Ntraj):
         for m in range(M):
             for n in range(M):
-                x_ave += Xmat[m,n] * np.conjugate(c[k,m]) * c[k,n] * w[k]
+              x_ave += Xmat[m,n] * np.conjugate(c[k,m]) * c[k,n] * w[k]   
     
     return x_ave.real 
     
@@ -395,7 +387,7 @@ def xAve(c,y,w):
 
 
 # update the coeffcients for each trajectory 
-fmt_c = ' {} '* (M+1)
+fmt_c = ' {} '*(M+1)
   
 f = open('traj.dat','w')
 fe = open('en.out','w')
@@ -430,11 +422,6 @@ for k in range(Nt):
     c = prop_c(H,c,y,ry,py)
     
     #  output data for each timestep 
-#    d = c
-#    for k in range(Ntraj):
-#        for i in range(M):
-#            d[k,i] = np.exp(-1j*t*H[i,i])*c[k,i]
-
     x_ave = xAve(c,y,w)
     fx.write('{} {} \n'.format(t,x_ave))
            

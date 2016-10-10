@@ -274,7 +274,7 @@ def qpot(x,p,r,w):
 # for DOF x : for each trajectory associate a complex vector c of dimension M 
    
 Ntraj = 1024*2
-M = 8
+M = 12  
 ax = 1.0 # width of the GH basis 
 ay0 = 4.0   
 y0 = 0.0  
@@ -295,7 +295,6 @@ for i in range(M):
     c[:,i] = np.exp(-0.5 * np.abs(z)**2) * z**i / np.sqrt(math.factorial(i))
 
 print('initial occupation \n',c[0,:])
-print('trace of density matrix',np.vdot(c[0,:], c[0,:]))
 # ---------------------------------
 # initial conditions for QTs     
    
@@ -351,11 +350,11 @@ def fit_c(c,y):
     for j in range(M):
 
         z = c[:,j]
-        p = np.polyfit(y,z,2)
+        p = np.polyfit(y,z,3)
         
         for k in range(Ntraj):
-            dc[k,j] = 2.0 * p[0] * y[k] + p[1]
-            ddc[k,j] = 2.0 * p[0] 
+            dc[k,j] = 3.0 * p[0] * y[k]**2 + p[1] * 2.0 * y[k] + p[2] 
+            ddc[k,j] = 6.0 * p[0] * y[k] + 2.0*p[1]  
             
     return dc, ddc
     
@@ -364,12 +363,12 @@ def prop_c(H,c,y,ry,py):
     
     dc, ddc = fit_c(c,y)
     
-    eps = 0.25e0 # nonlinear coupling Vint = eps*x**2*y
+    eps = 0.25e0 # bilinear coupling Vint = eps*x*y
     
     for k in range(Ntraj):
         
         Vp = eps * y[k] * M2mat(ax,M) 
-        tmp = (H + Vp).dot(c[k,:]) - ddc[k,:]/2.0/amy - dc[k,:] * (ry[k] + 1j*py[k])/amy 
+        tmp = (H+Vp).dot(c[k,:]) - ddc[k,:]/2.0/amy - dc[k,:] * (ry[k] + 1j*py[k])/amy 
         tmp *= -1j
 
         c[k,:] += tmp * dt 
@@ -387,7 +386,7 @@ def xAve(c,y,w):
     for k in range(Ntraj):
         for m in range(M):
             for n in range(M):
-                x_ave += Xmat[m,n] * np.conjugate(c[k,m]) * c[k,n] * w[k]
+              x_ave += Xmat[m,n] * np.conjugate(c[k,m]) * c[k,n] * w[k]   
     
     return x_ave.real 
     
@@ -395,7 +394,7 @@ def xAve(c,y,w):
 
 
 # update the coeffcients for each trajectory 
-fmt_c = ' {} '* (M+1)
+fmt_c = ' {} '*(M+1)
   
 f = open('traj.dat','w')
 fe = open('en.out','w')
@@ -430,11 +429,6 @@ for k in range(Nt):
     c = prop_c(H,c,y,ry,py)
     
     #  output data for each timestep 
-#    d = c
-#    for k in range(Ntraj):
-#        for i in range(M):
-#            d[k,i] = np.exp(-1j*t*H[i,i])*c[k,i]
-
     x_ave = xAve(c,y,w)
     fx.write('{} {} \n'.format(t,x_ave))
            

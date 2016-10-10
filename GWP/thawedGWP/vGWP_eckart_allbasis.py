@@ -15,7 +15,7 @@ import sys
 import math 
 
 @numba.autojit 
-def gint(x,px,aj,y,py,ak):
+def gint(aj,x,px,ak,y,py):
     """
     Gaussian integrals     
     """
@@ -27,16 +27,27 @@ def gint(x,px,aj,y,py,ak):
             + 2.0*1j* (px/aj + py/ak) *dq) )
 
 @numba.autojit 
-def iproj(x,px,ax,aold,xold,pold,cold):
+def iproj(a,x,p,a0,x0,p0):
     """
-    compute the projection of intial wavefunction on basis k 
-    the intial wavefunction is assumed to be a linear combination of GWPs
+    the intial wavefunction is expanded into a linear combination of GWPs
     """
-    z = 0.+0j 
-    for j in range(len(xold)):
-        d = gint(x, px, a, xold[j], pold[j], aold)
-        z += d * cold[j]
-    return z 
+
+    N = len(x)
+    b = np.zeros(N,dtype=np.complex128)
+    
+    # overlap matrix 
+    S = overlap(a,x,p)
+    
+    # projection onto each basis 
+    for k in range(N):
+        
+        ak, qk, pk = a[k], x[k], p[k] 
+        
+        b[k] = gint(ak, qk, pk, a0, x0, p0)
+
+    c = np.linalg.solve(S,b)
+        
+    return c
 
 
 def overlap_FGA(x,p): 
@@ -198,7 +209,7 @@ def qpot(xgrid, x,c):
     return u,du 
     
 
-def get_p(xgrid, x,p,c, smooth=False):
+def get_p(xgrid, a,x,p,c, smooth=True):
     """
     compute p = grad S at grid points  
     """
@@ -206,7 +217,6 @@ def get_p(xgrid, x,p,c, smooth=False):
     Ntraj = len(x)
     
     phase_p = np.zeros(len(xgrid)) 
-    
 
     delta = 1e-6 # soft parameter
     beta = 128.0 
@@ -222,7 +232,7 @@ def get_p(xgrid, x,p,c, smooth=False):
             for k in range(Ntraj):
                 
                 
-                qk, ak = x[k], a 
+                qk, ak = x[k], a[k] 
                 
                 y = q - qk 
                 
@@ -291,18 +301,44 @@ def solve(a,x,p,c):
     
     S = overlap(a,x,p) 
     
-    P = get_p(x,a,x,p,c) # phase momentum dS/dx 
+    phase_p = get_p(x,a,x,p,c) # phase momentum dS/dx 
     
-    D1 = d1mat(a,x,p,P,S)
-    D2 = d2mat(a,x,p,P,S)
+    D1 = d1mat(a,x,p,phase_p,S)
+    D2 = d2mat(a,x,p,c,phase_p,S)
+    
+    print('D matrix \n')
+    print(D1)
+    print(D2)
      
     V = vmat(a,x,p,S) 
-    V1 = v1mat(a,x,p,S)    
+    
+    print('potential matrix \n')
+    print(V)
+    
+    V1 = v1mat(a,x,p,c,S)  
+    
+    print('potential matrix 1 \n')
+    print(V1)
+    
     K = kmat(a,x,p,S)
-    K1 = k1mat(a,x,p,S) 
+    
+    print('kinetic energy \n')
+    print(K)
+    
+    K1 = k1mat(a,x,p,c,S) 
+    print('kinetic energy 1 \n')
+    print(K1)    
     
     J = Jmat(a,x,p,c,S)
+    
+    print('J matrix \n')
+    print(J)
+    
     G = Gmat(a,x,p,c,S)
+    
+    print('G matrix \n')
+    print(G)
+    print('condition number of G',cnum(G))
     
     # computes energy expectation value 
     #enk = np.vdot(c,K.dot(c))
@@ -314,16 +350,22 @@ def solve(a,x,p,c):
     b1 = - np.dot(1j * (K+V) + D1,c)
     b2 = - np.dot(1j * (K1+V1) + D2, c)
     
-    b  = np.zeros(2*N)
+    b  = np.zeros(2*N,dtype=np.complex128)
 
     b[0:N] = b1
     b[N:2*N] = b2 
     
-    M = blkMatrix(S,J.getH,J,G)    
+    print(b)
+    
+    M = blkMatrix(S,np.conj(J).T,J,G)    
     #print 'overlap',S
  
+    print('\n condition number of M',cnum(M))
     try:
         dz = np.linalg.solve(M, b)
+        
+        print('TDSE optimized EOM for z \n')
+        print(dz)
         
     except:
         print("Error: Equation of motion cannot be solved, possibaly ill-conditioned overlap matrix for dc")
@@ -366,7 +408,7 @@ def dv(x):
         #a = 1.3624d0 
         a = 1.0
         v0 = D/np.cosh(a*x)**2
-        dv = -2.0 * a * D * np.sech(a*x)**2 * np.tanh(a*x) 
+        dv = -2.0 * a * D / np.cosh(a*x)**2 * np.tanh(a*x) 
         ddv = 6.0*D*a**2*np.sinh(a*x)**2/np.cosh(a*x)**4-2.*D*a**2/np.cosh(a*x)**2
 
     
@@ -552,11 +594,11 @@ def Jmat(a,x,p,c,S):
     
     for j in range(N): 
         
-        aj,qj,pj = a[j], x[j], gp[j] 
+        aj,qj,pj = a[j], x[j], p[j] 
         
         for k in range(N):
             
-            ak,qk,pk = a[k], x[k], gp[k]
+            ak,qk,pk = a[k], x[k], p[k]
 
             dq = qj - qk 
 
@@ -579,15 +621,15 @@ def Gmat(a,x,p,c,S):
     
     for j in range(N): 
         
-        aj,qj,pj = a[j], x[j], gp[j] 
+        aj,qj,pj = a[j], x[j], p[j] 
         
         for k in range(N):
             
-            ak,qk,pk = a[k], x[k], gp[k]
+            ak,qk,pk = a[k], x[k], p[k]
 
             dq = qj - qk 
 
-            tmp22 = (1.0/((aj + ak)**4)) * (-3.0* aj * ak (-2.0 + ak * dq^2) + \
+            tmp22 = (1.0/((aj + ak)**4)) * (-3.0* aj * ak * (-2.0 + ak * dq**2) + \
                     ak**2 * (3.0 + ak * dq**2) + aj**2 * (3. - 3. * ak * dq**2 + ak**2 * dq**4) + aj**3 * dq**2)
 
             tmp2j = 1./(aj+ak) + aj**2*dq**2/(aj+ak)**2
@@ -600,17 +642,17 @@ def Gmat(a,x,p,c,S):
     return l 
 
 
-def norm(x,p,c):
+def norm(a,x,p,c):
     
-    S = overlap(x,p)
+    S = overlap(a,x,p)
     
     z = np.vdot(c,S.dot(c))
     
     return z.real
 
-def corr(x,p,c):
+def corr(a,x,p,c):
     
-    S = overlap(x,p)
+    S = overlap(a,x,p)
     
     z = c.dot(S.dot(c))
     
@@ -621,20 +663,16 @@ def blkMatrix(A,B,C,D):
     put four matrices into blocks to form larger matrix P =  A B 
                                                              C D 
     """
-    N = A.size[-1] 
-    l = np.zeros(2*N,2*N)
+    N = len(A)
+    l = np.zeros((2*N,2*N),dtype=np.complex128)
 
     for i in range(N):
         for j in range(N):
             
             l[i,j] = A[i,j] 
-            l[i,j+N] = B[i,j]  
-
-    for i in range(N+1,2*N):
-        for j in range(N):
-            
-            l[i,j] = C[i,j] 
-            l[i,j+N] = D[i,j]  
+            l[i,j+N] = B[i,j]              
+            l[i+N,j] = C[i,j] 
+            l[i+N,j+N] = D[i,j]  
     
     return l 
 
@@ -648,15 +686,15 @@ def k1mat(a,x,p,c,S):
     
     for j in range(N): 
         
-        aj,qj,pj = a[j], x[j], gp[j] 
+        aj,qj,pj = a[j], x[j], p[j] 
         
         for k in range(N):
             
-            ak,qk,pk = a[k], x[k], gp[k]
+            ak,qk,pk = a[k], x[k], p[k]
 
             dq = qj - qk 
 
-            tmp22 = (1.0/((aj + ak)**4)) * (-3.0* aj * ak (-2.0 + ak * dq^2) + \
+            tmp22 = (1.0/((aj + ak)**4)) * (-3.0* aj * ak * (-2.0 + ak * dq**2) + \
                     ak**2 * (3.0 + ak * dq**2) + aj**2 * (3. - 3. * ak * dq**2 + ak**2 * dq**4) + aj**3 * dq**2)
 
             tmp2j = 1./(aj+ak) + aj**2*dq**2/(aj+ak)**2
@@ -678,11 +716,11 @@ def v1mat(a,x,p,c,S):
     
     for j in range(N): 
         
-        aj,qj,pj = a[j], x[j], gp[j] 
+        aj,qj,pj = a[j], x[j], p[j] 
         
         for k in range(N):
             
-            ak,qk,pk = a[k], x[k], gp[k]
+            ak,qk,pk = a[k], x[k], p[k]
             
             x0 = (aj*qj + ak*qk)/(aj+ak) 
 
@@ -701,6 +739,17 @@ def v1mat(a,x,p,c,S):
     
     return l
 
+
+def cnum(S):
+    """
+    check condition number of a matrix S 
+    """
+    d = np.linalg.cond(S)
+    
+    if d > 1e6: 
+        sys.exit('Singular matrix')        
+        #print('number of basis = {} \n'.format(len(x)))
+    return d
 ##################### MAIN CODE ###################
 
 ### define the initial wavefunction, which usually is a Gaussian 
@@ -711,54 +760,53 @@ a0 = 2.0
 x0 = -3.0
 p0 = 3.0
 am = 1.0
- 
-x = [x0]
-p = [p0]
-
-#s = gint(xold[0],0.,a0,xold[1],0.,a0)
-#cold = [1./np.sqrt(2. + 2. * s), 1./np.sqrt(2. + 2. * s)]
-c = [1.0] 
-
 
 ### define a over-complete dictionary for matching-pursuit 
 
-N = 400     # number of elements in the dictionary 
+nb = 8     # number of elements in the dictionary 
 #gx = np.random.randn(N) / np.sqrt(2.0 * a0) + x0 
 cut = 1e-5
 xmin = x0 - np.sqrt(-np.log(cut/np.sqrt(a0/np.pi))/a0)      
 xmax = x0 + np.sqrt(-np.log(cut/np.sqrt(a0/np.pi))/a0)
 
-gx = np.linspace(xmin,xmax,N)
+x = np.linspace(xmin,xmax,nb)
 print('configuration space = {}, {} \n'.format(xmin,xmax))
 
-gp = np.zeros(N)
+p = np.zeros(nb)
 #gp = np.random.randn(N)
 #gp += p0
-a = 8.0 # basis of GWPs width 
+a = np.array([4.0+0j] * nb) # basis of GWPs width 
 
-# OMP, generate a set of GWPs 
-x, p, c, index = omp(a0, x, p, c)
+### OMP, generate a set of GWPs 
+#x, p, c, index = omp(a0, x, p, c)
 
-# solve TDSE 
+print('Start the propagation ...')  
 
-# check singularity of overlap matrix 
-     
-nb = len(x) # the number of basis function 
+# check singularity of overlap matrix
+
 print('number of basis = {} \n'.format(nb))
+
+print('basis sets ... \n')
+print('width parameters ',a,'\n')
 
 
 ### INITIAL PARAMETERS 
-Nt, dt = 600, 0.001
+Nt, dt = 1, 0.001
 t = 0.0 
 dt2 = dt/2.0 
 
+print('time steps = {}, time interval = {}'.format(Nt,dt))
 
-f_traj = open('traj.out', 'w')
-f_cor = open('cor.out', 'w')
+f_traj = open('traj.dat', 'w')
+f_cor = open('cor.dat', 'w')
 
 nout = 20 
 fmt = ' {} ' * (nout+1) + ' \n' 
 
+
+c = iproj(a,x,p,a0,x0,p0)
+print('initial expansion coefficients ...\n')
+print(c)
 
 #cold = c 
 #dc = solve(x,p,c)
@@ -785,41 +833,36 @@ for k in range(Nt):
     
     t += dt 
     
-    P_all = get_p(gx,x,p,c)
-    gx += P_all * dt / am 
+    P_all = get_p(x,a,x,p,c)
+    x += P_all * dt / am 
 
     
     # update c     
-    dc = solve(x,p,c)
+    dz = solve(a,x,p,c)
     
-    c += dc * dt 
-
+    dc = dz[0:nb]
+    da = dz[nb:2*nb]
     
-    # update basis position and momentum 
-    x = [gx[i] for i in index]
-    p = [gp[i] for i in index]
+    c += dc * dt
+    a += da * dt 
+    
+    
+    
+    print('width',a,'\n')
     
     #print('norm = {} \n'.format(norm(x,p,c)))
-
-    S = overlap(x,p)
-
+    
     # renormalization 
+    S = overlap(a,x,p)
+
     anm = np.vdot(c,S.dot(c)).real    
     c = c/np.sqrt(anm)
-    
-    cnum = np.linalg.cond(S)
-    if cnum > 1e5: 
-        print('OMP at {} timestep'.format(k))
-        #sys.exit('Singular matrix')
-        x,p,c,index = omp(a, x,p,c)
-        
-        print('number of basis = {} \n'.format(len(x)))
-     
 
-    f_cor.write(' {} {} \n'.format(t*2,corr(x,p,c)))
-    f_traj.write(fmt.format(t,*gx[0:nout]))
-    
-print('Mission Complete.')    
+    #f_cor.write(' {} {} \n'.format(t*2,corr(a,x,p,c)))
+    #f_traj.write(fmt.format(t,*gx[0:nout]))
+print('============================')
+print('*   propagation complete   *')
+print('============================.')    
 
 # close files 
 f_traj.close() 
@@ -843,12 +886,12 @@ f = open('fit.out', 'w')
 psi = (a0/np.pi)**0.25 * np.exp(-a0*(xgrid - x0)**2/2.0 + 1j * p0 * (xgrid-x0))
 #        + cold[1] * np.exp(-a0*(xgrid - xold[1])**2/2.0 + 1j * pold[1] * (xgrid-xold[1])))
 
-psi_approx = c[0] * (a/np.pi)**0.25 * np.exp(-a*(xgrid - x[0])**2/2.0 + 1j * p[0] * (xgrid-x[0]))
-if len(x) > 1:
-    for j in range(1,len(x)):
-        psi_approx += c[j] * (a/np.pi)**0.25 * np.exp(-a*(xgrid - x[j])**2/2.0 + 1j * p[j] * (xgrid - x[j]))
+#psi_approx = c[0] * (a/np.pi)**0.25 * np.exp(-a*(xgrid - x[0])**2/2.0 + 1j * p[0] * (xgrid-x[0]))
+#if len(x) > 1:
+#    for j in range(1,len(x)):
+#        psi_approx += c[j] * (a/np.pi)**0.25 * np.exp(-a*(xgrid - x[j])**2/2.0 + 1j * p[j] * (xgrid - x[j]))
 
-for i in range(len(xgrid)):
-    f.write('{} {} {} \n'.format(xgrid[i], np.abs(psi[i]), np.abs(psi_approx[i])))
+#for i in range(len(xgrid)):
+#    f.write('{} {} {} \n'.format(xgrid[i], np.abs(psi[i]), np.abs(psi_approx[i])))
 
 f.close()

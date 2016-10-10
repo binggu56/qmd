@@ -6,7 +6,7 @@ def derivs(x):
     Morse potential     
     """ 
     
-    PES = 'HO' 
+    PES = 'AHO' 
     
     if PES == 'Morse':
         
@@ -23,7 +23,14 @@ def derivs(x):
         
         v0 = x**2/2.0 
         dv = x 
-
+    
+    elif PES == 'AHO':
+        
+        eps = 0.4 
+        
+        v0 = x**2/2.0 + eps * x**4/4.0 
+        dv = x + eps * x**3  
+        
         #ddv = 2.0 * De * (-d*np.exp(-a*((x-x0)))*a**2 + (np.exp(-a*(x-x0)))**2*a**2)
 
     elif PES == 'pH2':

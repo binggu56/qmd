@@ -274,7 +274,7 @@ def qpot(x,p,r,w):
 # for DOF x : for each trajectory associate a complex vector c of dimension M 
    
 Ntraj = 1024*2
-M = 8
+M = 16
 ax = 1.0 # width of the GH basis 
 ay0 = 4.0   
 y0 = 0.0  
@@ -295,7 +295,6 @@ for i in range(M):
     c[:,i] = np.exp(-0.5 * np.abs(z)**2) * z**i / np.sqrt(math.factorial(i))
 
 print('initial occupation \n',c[0,:])
-print('trace of density matrix',np.vdot(c[0,:], c[0,:]))
 # ---------------------------------
 # initial conditions for QTs     
    
@@ -321,8 +320,8 @@ Ndim = 1           # dimensionality of the bath
 fric_cons = 0.0      # friction constant  
 
 
-Nt = 2**12
-dt = 1.0/2.0**9
+Nt = 2**13
+dt = 1.0/2.0**10
 dt2 = dt/2.0 
 t = 0.0 
 
@@ -351,11 +350,11 @@ def fit_c(c,y):
     for j in range(M):
 
         z = c[:,j]
-        p = np.polyfit(y,z,2)
+        p = np.polyfit(y,z,3)
         
         for k in range(Ntraj):
-            dc[k,j] = 2.0 * p[0] * y[k] + p[1]
-            ddc[k,j] = 2.0 * p[0] 
+            dc[k,j] = 3.0 * p[0] * y[k]**2 + p[1] * 2.0 * y[k] + p[2] 
+            ddc[k,j] = 6.0 * p[0] * y[k] + 2.0*p[1]  
             
     return dc, ddc
     
@@ -387,7 +386,7 @@ def xAve(c,y,w):
     for k in range(Ntraj):
         for m in range(M):
             for n in range(M):
-                x_ave += Xmat[m,n] * np.conjugate(c[k,m]) * c[k,n] * w[k]
+              x_ave += Xmat[m,n] * np.conjugate(c[k,m]) * c[k,n] * w[k]   
     
     return x_ave.real 
     
@@ -395,7 +394,7 @@ def xAve(c,y,w):
 
 
 # update the coeffcients for each trajectory 
-fmt_c = ' {} '* (M+1)
+fmt_c = ' {} '*(M+1)
   
 f = open('traj.dat','w')
 fe = open('en.out','w')

@@ -28,8 +28,8 @@ def plt_en(ax):
 
     data = np.genfromtxt(fname='en.dat')
     
-    #ax1.plot(data[:,0],data[:,2],linewidth=2,label='Potential')
-    #ax1.plot(data[:,0],data[:,3],linewidth=2,label='Quantum Potential')
+    ax.plot(data[:,0],data[:,2],linewidth=2,label='Potential')
+    ax.plot(data[:,0],data[:,3],linewidth=2,label='Quantum Potential')
     ax.plot(data[:,0],data[:,4],linewidth=2,label='Energy')
     
     
@@ -39,7 +39,7 @@ def plt_en(ax):
     ax.plot(data[:,0],data[:,1],linewidth=2,label='K')
     ax.legend(loc=0) 
     
-    plt.axhline(y=-2.9021, xmin=0, xmax=1, color='r',lw=2)
+#plt.axhline(y=-2.9021, xmin=0, xmax=1, color='r',lw=2)
 
 
 #plt.legend()

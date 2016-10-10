@@ -92,7 +92,7 @@ def qpot(x,p,r,w):
     #else: 
     #    print('Data points are not sampled well.'
     
-    Nb = 6
+    Nb = 4
     S = np.zeros((Nb,Nb))
     
     for j in range(Nb):
@@ -114,11 +114,20 @@ def qpot(x,p,r,w):
     #r_approx = cr[0] * unit + cr[1] * x + cr[2] * x**2 + cr[3] * x**3 
     #p_approx = cp[0] * unit + cp[1] * x + cp[2] * x**2 + cp[3] * x**3
 
-    dr = cr[1] + 2. * cr[2] * x + 3. * cr[3] * x**2 + 4.0 * cr[4] * x**3 + 5.0 * cr[5] * x**4 
-    dp = cp[1] + 2. * cp[2] * x + 3. * cp[3] * x**2 + 4.0 * cp[4] * x**3 + 5.0 * cp[5] * x**4
+    N = len(x)
     
-    ddr = 2. * cr[2] + 6. * cr[3] * x + 12.0 * cr[4] * x**2 + 20.0 * cr[5] * x**3
-    ddp = 2. * cp[2] + 6. * cp[3] * x + 12.0 * cp[4] * x**2 + 20.0 * cp[5] * x**3
+    dr = np.zeros(N)
+    dp = np.zeros(N)
+    ddr = np.zeros(N)
+    ddp = np.zeros(N)
+    
+    for k in range(1,Nb):    
+        dr += float(k) * cr[k] * x**(k-1) 
+        dp += float(k) * cp[k] * x**(k-1)  
+    
+    for k in range(2,Nb-1):
+        ddr += float(k * (k-1)) * cr[k] * x**(k-2) 
+        ddp += float(k * (k-1)) * cp[k] * x**(k-2) 
     
     fr =  -1./2./am * (2. * r * dp + ddp)
     fq = 1./2./am * (2. * r * dr + ddr)  
@@ -141,8 +150,8 @@ def sym(V):
 
 # initialization    
 Ntraj = 2048*2
-a0 = 0.25  
-x0 = 10.0  
+a0 = 2  
+x0 = 0.0  
 
 
 x = np.random.randn(Ntraj) 
@@ -207,15 +216,15 @@ def evolve(x,p,r):
         r += fr * dt2 
            
         f.write(fmt.format(t,*x[0:nout]))
-        Ek = np.dot(p*p,w)/2./am  * hartree_wavenumber
-        Ev = np.dot(v0,w) * hartree_wavenumber
-        Eu = Eu * hartree_wavenumber
+        Ek = np.dot(p*p,w)/2./am  
+        Ev = np.dot(v0,w) 
+        Eu = Eu 
         Etot = Ek + Ev + Eu
         
         fe.write('{} {} {} {} {} \n'.format(t,Ek,Ev,Eu,Etot))
         
         if k == Nt-1:
-            print('The total energy = {} cm-1. \n'.format(Etot))
+            print('The total energy = {} Hartree. \n'.format(Etot))
     
     fe.close()
     f.close() 
