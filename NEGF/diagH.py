@@ -16,7 +16,7 @@ import matplotlib as mpl
 norm = mpl.colors.Normalize(vmin=0, vmax=1, clip=True)
 mapper = cm.ScalarMappable(norm=norm, cmap=cm.Blues)
 
-unit_length = 5 
+unit_length = 2.0
 
 
 def set_style():
@@ -45,7 +45,7 @@ def set_style():
     plt.rc('figure', titlesize=SIZE)  # # size of the figure title
 
 def set_size(fig):
-    #fig.set_size_inches(6, 4)
+    fig.set_size_inches(8, 6)
     plt.tight_layout()
 
 
@@ -121,7 +121,7 @@ def field(t):
     
     sigma = 100.0 
     hbarinv = 1.51924888335207073622
-    A = 0.5 # strength of the field
+    A = 0.05 # strength of the field
     T0 = 500.0 # center of time range for the field 
     phase = 0.0 
     freq = 0.10
@@ -138,12 +138,14 @@ def ECP(N,t,bias=1.2):
     right = -bias + efactor * E * (float(N+1)/2.0) * unit_length
     
     return left, right 
+    
+    
 T = np.linspace(300,500,400)
 #for t in T:
 #    print(t,field(t))
 plt.plot(T,field(T))
 #Hamiltonian(377.20)
-Hamiltonian(458.90)
+#Hamiltonian(458.90)
 #Hamiltonian(417.794486216)
 #Hamiltonian(438.345864662)
 Hamiltonian(500.0)

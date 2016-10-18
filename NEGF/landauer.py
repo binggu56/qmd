@@ -39,7 +39,9 @@ hop2 = -0.7
 alpha=4.1
 gammaL=0.05
 gammaR=0.05
-lc=1.22 
+
+lc = unit_length = 2.0 
+
 telec=300.0e0
 fieldtyp=0
 tmax=1500.0e0 
@@ -70,7 +72,15 @@ uprange=0.0
 AL = np.zeros((norbs,norbs))
 AR = np.zeros((norbs,norbs))
 AL[0,0] = gammaL/2.0
+AL[1,0] = gammaL/2.0
+AL[1,1] = gammaL/2.0
+AL[0,1] = gammaL/2.0
+
 AR[0,0] = gammaR/2.0
+AR[0,1] = gammaR/2.0
+AR[1,0] = gammaR/2.0
+AR[1,1] = gammaR/2.0
+
 Lambda = [AL, AR]
 
 def field(t):
@@ -87,12 +97,11 @@ def field(t):
 
     return phi
 
-def ECP(t,bias=1.2e0):
+def ECP(t,bias=3e0):
 
-    global nsite
+    global nsite, unit_length
     
     efactor = 1.0e0
-    unit_length = 1.22e0 
     E = field(t)
     left = bias - efactor * E * (float(nsite+1)/2.0) * unit_length
     right = -bias + efactor * E * (float(nsite+1)/2.0) * unit_length
@@ -133,12 +142,13 @@ def fock(t):
 
 #fock0 = fock(438.345864662)
 
-#t = 458.90 # maximum of field
-t = 438.345864662 # minimum of field
+t = 458.90 # minimum of field
+#t = 438.345864662 # maximum of field
+
 fock0 = fock(t)
 
 
-ampl, ampr = ECP(t,bias=1.6)
+ampl, ampr = ECP(t,bias=1.0)
 amp = np.array([ampl, ampr])
 
 class Lead:
@@ -146,7 +156,7 @@ class Lead:
         self.nStart = nStart 
         self.nSigma = nSigma 
 
-Lead = [Lead(0,1), Lead(norbs-1,1)]
+Lead = [Lead(0,2), Lead(norbs-2,2)]
 print('\n ========= enter  Landauer_m.f90 =========== \n')
 
 def landauer(nLead, miu0, beta, amp, norbs, fock0, Lambda, Lead):
