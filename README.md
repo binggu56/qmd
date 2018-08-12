@@ -1,4 +1,5 @@
-# pyQMD
+Scitools:
+
 Quantum molecular dynamics simulated with various methods implemented with PYTHON and Fortran.
 
 It consists of various different formulations of quantum mechanics and approximation associated within each formulation. 
