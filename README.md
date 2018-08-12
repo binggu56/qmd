@@ -1,11 +1,9 @@
-Scitools:
+## Scitools
 
-Quantum molecular dynamics simulated with various methods implemented with PYTHON and Fortran.
-
-It consists of various different formulations of quantum mechanics and approximation associated within each formulation. 
+Scitools is a package created for scientists working in diver field of quantum mechanics including quantum dynamics, perodically driven quantum systems, open quantum systems and electronic and optical properties of matter.
 
 
-## Wave mechanics 
+## Quantum dynamics 
  - Exact numerical method - split-operator method and Fast Fourier Transform 
  - Discrete variable representation (DVR) 
  
@@ -13,19 +11,11 @@ It consists of various different formulations of quantum mechanics and approxima
 - Real-time quantum wavepacket dynamics 
 - Imaginary-time quantum wavepacket propagation 
 
-## Quantum trajectory method with friction (QTM_F) 
-
-
 ## Quantum Monte Carlo (QMC) 
 Imaginary-time propagation of arbitrary wavefunction 
 - Variational Monte Carlo 
 - Diffusion Monte Carlo  
 
-
-## Path Integral
-
 ## Quantum dynamics with Gaussian wavepackets (GWP) 
 
  - Quantum trajectory guided GWPs 
-
-## TDSE with Gauss-Hermite basis  guided by quantum trajectories (GHQT)
