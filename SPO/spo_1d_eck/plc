@@ -1,2 +1,0 @@
-plot 'corr1' u 1:2 with lines lw 2 ti 'corr_real', \
-     'corr1' u 1:3 with lines lw 2 ti 'corr_imag'

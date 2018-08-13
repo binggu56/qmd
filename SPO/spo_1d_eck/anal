@@ -1,7 +1,0 @@
-set term postscript eps enhanced color
-set output 'anal.eps'
-set xr [0:40]
-set xlabel "Energy [hartree]"
-set ylabel "Transmission Probability"
-plot sinh(0.734*pi*sqrt(2*x))**2/(sinh(0.734*pi*sqrt(2*x))**2+cosh(4.1219*pi)**2) with lines lw 2 ti 'Analytical', \
-     'smat' u 1:8 with lines lw 2 ti 'Theoretical'

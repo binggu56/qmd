@@ -1,9 +1,0 @@
-set yr [-1:1]
-plot 'smat' u 1:2 with lines lw 2 ti 'eta_a_real', \
-     'smat' u 1:3 with lines lw 2 ti 'eta_a_imag', \
-     'smat' u 1:4 with lines lw 2 ti 'eta_b_real', \
-     'smat' u 1:5 with lines lw 2 ti 'eta_b_real',  \
-     'smat' u 1:6 with lines lw 2 ti 'sab_real',  \
-     'smat' u 1:7 with lines lw 2 ti 'sab_imag',  \
-     'smat' u 1:8 with lines lw 2 ti 'tran'
-pause -1 

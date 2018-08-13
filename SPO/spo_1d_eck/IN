@@ -1,6 +1,0 @@
-1024,-6d0,6d0       # N1,xmin,xmax 
-0.5d0                   # a0
--2.5d0,0d0             # x0,p0
-7.0d0,20.0d0          # di,ai
-600,0.005d0,1,1        # Nt,dt,nout,ipot
-1d0                   # mass
